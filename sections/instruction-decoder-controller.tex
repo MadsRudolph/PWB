@@ -1,0 +1,46 @@
+\ifdefined\mainfile\else
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+\begin{document}
+\fi
+
+\section{Instruction Decoder / Controller}
+\label{sec:idc}
+% State machine med case-in-case struktur
+% States: INF, EX0, EX1, EX2, EX3, EX4
+% Genererer kontrolord: PS, IL, DX, AX, BX, MB, FS, MD, RW, MM, MW
+% Modtager status flags: V, C, N, Z
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.75\linewidth]{images/idc/TODO_state_diagram.png}
+%     \caption{IDC state diagram}
+%     \label{fig:idc-states}
+% \end{figure}
+
+\subsection{State Machine Design}
+\label{sec:idc-fsm}
+% State diagram, state transitions, opcode dekodning
+% Case-in-case: ydre case = current_state, indre case = opcode
+
+\subsection{Kontrolord}
+\label{sec:idc-controlword}
+% 28-bit kontrolord og hvordan det genereres pr. state/opcode kombination
+% Tabel over kontrolord for hver instruktion
+
+\subsection{VHDL Implementering}
+\label{sec:idc-vhdl}
+% VHDL kode og forklaring af to-process model (state register + next state/output logic)
+
+\subsection{Test}
+\label{sec:idc-test}
+% Testbench og verifikation -- ADD, LD, BRZ, JMP, etc.
+
+\ifdefined\mainfile\else
+\end{document}
+\fi

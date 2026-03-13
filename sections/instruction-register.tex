@@ -1,0 +1,65 @@
+\ifdefined\mainfile\else
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+\begin{document}
+\fi
+
+\section{Instruction Register}
+\label{sec:instruction-register}
+% 16-bit Instruction Register med IL load-enable
+% IL=0: Hold, IL=1: Load instruction
+% Instruktionsformat: Opcode(15:9) | DR(8:6) | SA(5:3) | SB(2:0)
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.75\linewidth]{images/ir/TODO_ir_diagram.png}
+%     \caption{Instruction Register blokdiagram}
+%     \label{fig:ir-overview}
+% \end{figure}
+
+\subsection{Design}
+\label{sec:ir-design}
+% Beskrivelse af IR logik og IL kontrolsignal
+
+\subsection{VHDL Implementering}
+\label{sec:ir-vhdl}
+% VHDL kode og forklaring
+
+\subsection{Test}
+\label{sec:ir-test}
+% Testbench og verifikation
+
+\subsection{Sign Extender}
+\label{sec:sign-extender}
+% Kombinatorisk sign extension af IR felter
+% IR(8)=0: Extended_8 = 0.0.0.IR7.IR6.IR2.IR1.IR0
+% IR(8)=1: Extended_8 = 1.1.1.IR7.IR6.IR2.IR1.IR0
+
+\subsubsection{Design}
+\label{sec:se-design}
+% Beskrivelse af sign extension logik
+
+\subsubsection{Test}
+\label{sec:se-test}
+% Testbench og verifikation
+
+\subsection{Zero Filler}
+\label{sec:zero-filler}
+% Kombinatorisk zero fill: ZeroFilled_8 = 0.0.0.0.0.IR2.IR1.IR0
+
+\subsubsection{Design}
+\label{sec:zf-design}
+% Beskrivelse af zero fill logik
+
+\subsubsection{Test}
+\label{sec:zf-test}
+% Testbench og verifikation
+
+\ifdefined\mainfile\else
+\end{document}
+\fi

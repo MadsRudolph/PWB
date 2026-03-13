@@ -1,0 +1,38 @@
+\ifdefined\mainfile\else
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+\begin{document}
+\fi
+
+\section{Microprogram Controller (Top-Level)}
+\label{sec:mpc}
+% Strukturel top-level entity der forbinder alle submoduler
+% ProgramCounter, InstructionRegister, SignExtender, ZeroFiller, IDC
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1\linewidth]{images/mpc/TODO_mpc_toplevel.png}
+%     \caption{Microprogram Controller top-level blokdiagram}
+%     \label{fig:mpc-toplevel}
+% \end{figure}
+
+\subsection{Intern Signalflow}
+\label{sec:mpc-signals}
+% Beskrivelse af interne signaler og hvordan modulerne er forbundet
+
+\subsection{VHDL Implementering}
+\label{sec:mpc-vhdl}
+% Strukturel VHDL kode -- component instantiation og port mapping
+
+\subsection{Test}
+\label{sec:mpc-test}
+% Integrations-testbench -- ADD, MOVA, LDI, JMP, etc. gennem top-level
+
+\ifdefined\mainfile\else
+\end{document}
+\fi

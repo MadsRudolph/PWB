@@ -1,0 +1,38 @@
+\ifdefined\mainfile\else
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+\begin{document}
+\fi
+
+\section{Program Counter}
+\label{sec:program-counter}
+% 8-bit Program Counter med PS(1:0) styring
+% PS=00: Hold, PS=01: Increment, PS=10: Branch (PC + Offset), PS=11: Jump
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.75\linewidth]{images/pc/TODO_pc_diagram.png}
+%     \caption{Program Counter blokdiagram}
+%     \label{fig:pc-overview}
+% \end{figure}
+
+\subsection{Design}
+\label{sec:pc-design}
+% Beskrivelse af PC logik og PS kontrolsignaler
+
+\subsection{VHDL Implementering}
+\label{sec:pc-vhdl}
+% VHDL kode og forklaring
+
+\subsection{Test}
+\label{sec:pc-test}
+% Testbench og verifikation -- Hold, Increment, Branch, Jump
+
+\ifdefined\mainfile\else
+\end{document}
+\fi
