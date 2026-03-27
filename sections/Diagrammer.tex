@@ -1,0 +1,53 @@
+\ifdefined\mainfile\else
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows, calc}
+
+\tikzset{
+	->,  % makes the edges directed
+	>=stealth, % makes the arrow heads bold
+	shorten >=2pt, shorten <=2pt, % shorten the arrow
+	node distance=3cm, % specifies the minimum distance between two nodes. Change if n
+	every state/.style={draw=blue!55,very thick,fill=blue!20}, % sets the properties for each ’state’ n
+	initial text=$ $, % sets the text that appears on the start arrow
+ }
+
+\begin{document}
+	\begin{tikzpicture}
+		\node[state, initial] (INF) {$INF$};
+		\node[state, right of=INF] (EX0) {$EX0$};
+		\node[state, right of=EX0] (EX1) {$EX1$};
+		\node[state, right of=EX1] (EX2) {$EX2$};
+		\node[state, right of=EX2] (EX3) {$EX3$};
+		\node[state, right of=EX3] (EX4) {$EX4$}
+        
+		\draw 
+			  (INF) edge[bend left] node[above]{$C1$} (EX0)
+			  %
+			  (EX0) edge[bend left] node[above]{$C2$} (EX1)
+			  (EX0) edge[bend left] node[above]{$C3$} (INF)
+			  %
+			  (EX1) edge[bend left] node[above]{$0,0$} (EX2)
+			  (EX1) edge[bend left=40] node[above]{$1,0$} (INF)
+			  %
+			  (EX2) edge[bend left=50] node[above]{$0,0$} (INF)
+			  (EX2) edge[bend left] node[above]{$1,0$} (EX3)
+			  %
+			  (EX3) edge[bend right=50] node[above]{$0,1$} (INF)
+			  (EX3) edge[bend left=60] node[above]{$1,0$} (INF)
+		;
+	\end{tikzpicture}
+\end{document}
+
+
+
+
+
+
+
