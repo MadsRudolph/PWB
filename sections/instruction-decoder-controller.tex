@@ -312,12 +312,6 @@ at RW=1 (register write), og at PS=01 (PC increment).
     \label{fig:idc-tb-g1}
 \end{figure}
 
-\begin{verbatim}
-Note: === Group 1: ALU register-register ===
-Note: === Group 1: PASSED ===
-Note: === Test group 1 completed ===
-\end{verbatim}
-
 \subsubsection{Gruppe 2: Memory \& Immediate}
 
 Tester LD, ST, ADI og LDI. Verificerer korrekt MD (memory data select),
@@ -329,12 +323,6 @@ MW (memory write), MB (MUX B for immediate operander) og FS.
     \caption{Simulering af Gruppe 2: Memory og immediate instruktioner.}
     \label{fig:idc-tb-g2}
 \end{figure}
-
-\begin{verbatim}
-Note: === Group 2: Memory & Immediate ===
-Note: === Group 2: PASSED ===
-Note: === Test group 2 completed ===
-\end{verbatim}
 
 \subsubsection{Gruppe 3: Branch \& Jump}
 
@@ -349,12 +337,6 @@ ved at variere Z- og N-flag.
              PS skifter mellem 10 (branch taget) og 01 (ikke taget).}
     \label{fig:idc-tb-g3}
 \end{figure}
-
-\begin{verbatim}
-Note: === Group 3: Branch & Jump ===
-Note: === Group 3: PASSED ===
-Note: === Test group 3 completed ===
-\end{verbatim}
 
 \subsubsection{Gruppe 4: Multi-cycle (LRI, SRM, SLM)}
 
@@ -371,13 +353,29 @@ gennemløb af EX2$\leftrightarrow$EX3 løkken.
     \label{fig:idc-tb-g4}
 \end{figure}
 
-\begin{verbatim}
-Note: === Group 4: Multi-cycle ===
-Note: === Group 4: PASSED ===
-Note: === Test group 4 completed ===
-\end{verbatim}
+\subsubsection{Verifikationsresultat}
 
-Alle 24 individuelle tests bestod uden fejl i Vivado XSim.
+Alle fire testgrupper blev kørt i Vivado XSim. Ingen \texttt{Error}-beskeder
+blev rapporteret, hvilket bekræfter at samtlige 24 assert-statements bestod.
+TCL-konsollens output for hver gruppe:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|l|c|c|}
+\hline
+\textbf{Gruppe} & \textbf{Beskrivelse} & \textbf{Antal tests} & \textbf{Resultat} \\
+\hline
+1 & ALU register-register  & 10 & PASSED \\
+2 & Memory \& Immediate    & 4  & PASSED \\
+3 & Branch \& Jump         & 5  & PASSED \\
+4 & Multi-cycle (LRI, SRM, SLM) & 5 & PASSED \\
+\hline
+  & \textbf{Total}         & \textbf{24} & \textbf{PASSED} \\
+\hline
+\end{tabular}
+\caption{Testresultater for IDC testbench. Alle grupper bestod uden fejl.}
+\label{tab:idc-test-results}
+\end{table}
 
 \ifdefined\mainfile\else
 \end{document}
