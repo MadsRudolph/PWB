@@ -8,6 +8,16 @@
 \usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows, calc}
+\tikzset{
+    ->,
+    >=stealth,
+    shorten >=2pt, shorten <=2pt,
+    node distance=2.8cm,
+    every state/.style={draw=blue!55,very thick,fill=blue!20},
+    initial text=$ $,
+}
 \lstdefinestyle{vhdl}{
     language=VHDL,
     basicstyle=\footnotesize\ttfamily,
@@ -106,6 +116,53 @@ EX4 & Færdig: R[DR] $\leftarrow$ R8, returnerer til INF \\
 \caption{IDC tilstande}
 \label{tab:idc-states}
 \end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+    \node[state, initial] (INF) {$INF$};
+    \node[state, right of=INF] (EX0) {$EX0$};
+    \node[state, right of=EX0] (EX1) {$EX1$};
+    \node[state, right of=EX1] (EX2) {$EX2$};
+    \node[state, right of=EX2] (EX3) {$EX3$};
+    \node[state, right of=EX3] (EX4) {$EX4$};
+    \node[
+        draw,
+        fill=gray!10,
+        align=left,
+        anchor=north,
+        rounded corners,
+        inner sep=6pt
+    ] at ($(current bounding box.south) + (0.4,-2cm)$) {
+        \textbf{Forkortelser:}\\[4pt]
+        $AOC$ = All other conditions \\
+        $C_0$ = Condition : $OP=LRI \lor (OP\in\{SRM,SLM\}\land Z=0$) \\
+        $C_1$ = Condition : $OP=LRI \lor (OP\in\{SRM,SLM\}\land Z=1)$ \\
+        $C_2$ = Condition : $OP\in\{SRM,SLM\}\land Z=0$ \\
+        $C_3$ = Condition : $OP\in\{SRM,SLM\}\land Z=1$ \\
+        $C_4$ = Condition : $OP\in\{SRM,SLM\}$ \\
+    };
+
+    \draw
+        (INF) edge[bend left] node[above]{\small IL} (EX0)
+        %
+        (EX0) edge[bend left] node[below]{\small $AOC$} (INF)
+        (EX0) edge[bend left] node[above]{\small $C_0$} (EX1)
+        %
+        (EX1) edge[bend left=60] node[below]{\small $C_1$} (INF)
+        (EX1) edge[bend left] node[above]{\small $C_2$} (EX2)
+        %
+        (EX2) edge[bend left] node[above]{\small $C_2$} (EX3)
+        %
+        (EX3) edge[bend left] node[below]{\small $C_2$} (EX2)
+        (EX3) edge[bend left] node[above]{\small $C_3$} (EX4)
+        %
+        (EX4) edge[bend right=60] node[below]{\small $C_4$} (INF)
+    ;
+\end{tikzpicture}
+\caption{IDC state diagram med tilstandsovergange og betingelser.}
+\label{fig:idc-state-diagram}
+\end{figure}
 
 Tilstandsovergangene for de forskellige instruktionstyper:
 
