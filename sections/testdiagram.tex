@@ -35,25 +35,29 @@
     inner sep=6pt
 ] at ($(current bounding box.south) + (0.4,-2cm)$) {
     \textbf{Forkortelser:}\\[4pt]
-    $C_1$ = Condition[$OP=LRI \lor (OP\in\{SRM,SLM\}\land Z=1)$] \\
-    
+    $AOC$ = All other conditions \\
+    $C_0$ = Condition : $OP=LRI \lor (OP\in\{SRM,SLM\}\land Z=0$) \\
+    $C_1$ = Condition : $OP=LRI \lor (OP\in\{SRM,SLM\}\land Z=1)$ \\
+    $C_2$ = Condition : $OP\in\{SRM,SLM\}\land Z=0$ \\
+    $C_3$ = Condition : $OP\in\{SRM,SLM\}\land Z=1$ \\
+    $C_4$ = Condition : $OP\in\{SRM,SLM\}$ \\
 };
             
 		\draw
 			(INF) edge[bend left] node[above]{\small IL} (EX0)
 			%
-			(EX0) edge[bend left] node[below]{\small $C_1$} (INF)
-			(EX0) edge[bend left] node[above]{\small $EX_0NS_2$} (EX1)
+			(EX0) edge[bend left] node[below]{\small $AOC$} (INF)
+			(EX0) edge[bend left] node[above]{\small $C_0$} (EX1)
 			%
-			(EX1) edge[bend left=60] node[below]{\small $EX_1NS_1$} (INF)
-			(EX1) edge[bend left] node[above]{\small $EX_1NS_2$} (EX2)
+			(EX1) edge[bend left=60] node[below]{\small $C_1$} (INF)
+			(EX1) edge[bend left] node[above]{\small $C_2$} (EX2)
 			%
-			(EX2) edge[bend left] node[above]{\small $EX_2NS$} (EX3)
+			(EX2) edge[bend left] node[above]{\small $C_2$} (EX3)
 			%
-			(EX3) edge[bend left] node[below]{\small $EX_3NS_!$} (EX2)
-			(EX3) edge[bend left] node[above]{\small $EX_3NS_2$} (EX4)
+			(EX3) edge[bend left] node[below]{\small $C_2$} (EX2)
+			(EX3) edge[bend left] node[above]{\small $C_3$} (EX4)
 			%
-			(EX4) edge[bend right=60] node[below]{\small ALL} (INF)
+			(EX4) edge[bend right=60] node[below]{\small $C_4$} (INF)
 		;
 	\end{tikzpicture}
 \end{document}
