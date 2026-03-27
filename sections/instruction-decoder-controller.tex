@@ -6,40 +6,321 @@
 \usepackage{amssymb}
 \usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstdefinestyle{vhdl}{
+    language=VHDL,
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    literate=%
+        {æ}{{\ae}}1
+        {ø}{{\o}}1
+        {å}{{\aa}}1
+        {Æ}{{\AE}}1
+        {Ø}{{\O}}1
+        {Å}{{\AA}}1,
+}
 \begin{document}
 \fi
 
 \section{Instruction Decoder / Controller}
 \label{sec:idc}
-% State machine med case-in-case struktur
-% States: INF, EX0, EX1, EX2, EX3, EX4
-% Genererer kontrolord: PS, IL, DX, AX, BX, MB, FS, MD, RW, MM, MW
-% Modtager status flags: V, C, N, Z
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.75\linewidth]{images/idc/TODO_state_diagram.png}
-%     \caption{IDC state diagram}
-%     \label{fig:idc-states}
-% \end{figure}
+Instruction Decoder / Controller (IDC) er det centrale styringsmodul i mikroprogramcontrolleren.
+Den modtager den aktuelle instruktion fra IR og statusflag (V, C, N, Z) fra datavejen,
+og genererer det komplette kontrolord der styrer alle andre moduler i systemet.
+
+\subsection{Arkitektur}
+\label{sec:idc-arch}
+
+IDC er implementeret som en Mealy-type finite state machine (FSM) med seks tilstande
+og en to-process model:
+
+\begin{enumerate}
+    \item \textbf{State register} (sekventiel process): Opdaterer \texttt{current\_state} på stigende
+          clockflanke. Asynkron reset til INF.
+    \item \textbf{Next-state + output logik} (kombinatorisk process): Beregner \texttt{next\_state}
+          og alle kontrolsignaler baseret på \texttt{current\_state}, opcode (\texttt{IR(15:9)}) og statusflag.
+\end{enumerate}
+
+Outputsignalerne udgør kontrolordet:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Signal} & \textbf{Bredde} & \textbf{Funktion} \\
+\hline
+PS  & 2 bit  & Program Counter select (00=hold, 01=inc, 10=branch, 11=jump) \\
+IL  & 1 bit  & Instruction Load (load IR fra hukommelse) \\
+DX  & 4 bit  & Destination register adresse \\
+AX  & 4 bit  & A-source register adresse \\
+BX  & 4 bit  & B-source register adresse \\
+MB  & 1 bit  & MUX B select (0=register, 1=constant) \\
+FS  & 4 bit  & Function Unit select \\
+MD  & 1 bit  & MUX D select (0=ALU, 1=memory) \\
+RW  & 1 bit  & Register Write enable \\
+MM  & 1 bit  & MUX M select (0=ALU adresse, 1=PC adresse) \\
+MW  & 1 bit  & Memory Write enable \\
+\hline
+\end{tabular}
+\caption{IDC kontrolsignaler}
+\label{tab:idc-signals}
+\end{table}
 
 \subsection{State Machine Design}
 \label{sec:idc-fsm}
-% State diagram, state transitions, opcode dekodning
-% Case-in-case: ydre case = current_state, indre case = opcode
 
-\subsection{Kontrolord}
-\label{sec:idc-controlword}
-% 28-bit kontrolord og hvordan det genereres pr. state/opcode kombination
-% Tabel over kontrolord for hver instruktion
+FSM'en har seks tilstande. De fleste instruktioner er 2-cyklus (INF $\rightarrow$ EX0 $\rightarrow$ INF),
+mens LRI bruger 3 cyklusser og SRM/SLM bruger en variabel shift-løkke:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Tilstand} & \textbf{Funktion} \\
+\hline
+INF & Instruction Fetch: IL=1, MM=1, henter næste instruktion fra M[PC] \\
+EX0 & Primær eksekvering: dekoder opcode, udfører 2-cyklus instruktioner \\
+EX1 & Sekundær eksekvering: LRI anden læsning, SRM/SLM loader tæller \\
+EX2 & Shift: udfører ét shift af R8 (sr eller sl afhængig af opcode) \\
+EX3 & Tæller: R9 $\leftarrow$ R9 $-$ 1, tjekker Z-flag for løkke \\
+EX4 & Færdig: R[DR] $\leftarrow$ R8, returnerer til INF \\
+\hline
+\end{tabular}
+\caption{IDC tilstande}
+\label{tab:idc-states}
+\end{table}
+
+Tilstandsovergangene for de forskellige instruktionstyper:
+
+\begin{itemize}
+    \item \textbf{ALU register-register} (MOVA, ADD, SUB, etc.): INF $\rightarrow$ EX0 $\rightarrow$ INF
+    \item \textbf{Memory} (LD, ST): INF $\rightarrow$ EX0 $\rightarrow$ INF
+    \item \textbf{Immediate} (ADI, LDI): INF $\rightarrow$ EX0 $\rightarrow$ INF (MB=1)
+    \item \textbf{Branch} (BRZ, BRN): INF $\rightarrow$ EX0 $\rightarrow$ INF (PS betinget af flag)
+    \item \textbf{Jump} (JMP): INF $\rightarrow$ EX0 $\rightarrow$ INF (PS=11)
+    \item \textbf{LRI}: INF $\rightarrow$ EX0 $\rightarrow$ EX1 $\rightarrow$ INF
+    \item \textbf{SRM/SLM}: INF $\rightarrow$ EX0 $\rightarrow$ EX1 $\rightarrow$ EX2 $\leftrightarrow$ EX3 $\rightarrow$ EX4 $\rightarrow$ INF
+\end{itemize}
+
+\subsection{Instruktionsoversigt}
+\label{sec:idc-instructions}
+
+Tabellen viser kontrolordet for hver instruktion i EX0-tilstanden.
+For ALU-operationer gælder at FS aflæses direkte fra \texttt{IR(12:9)}.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+\textbf{Instruktion} & \textbf{Opcode} & \textbf{PS} & \textbf{FS} & \textbf{MB} & \textbf{MD} & \textbf{RW} & \textbf{MW} \\
+\hline
+MOVA  & 0000000 & 01 & 0000 & 0 & 0 & 1 & 0 \\
+INC   & 0000001 & 01 & 0001 & 0 & 0 & 1 & 0 \\
+ADD   & 0000010 & 01 & 0010 & 0 & 0 & 1 & 0 \\
+SUB   & 0000101 & 01 & 0101 & 0 & 0 & 1 & 0 \\
+DEC   & 0000110 & 01 & 0110 & 0 & 0 & 1 & 0 \\
+OR    & 0001000 & 01 & 1000 & 0 & 0 & 1 & 0 \\
+AND   & 0001001 & 01 & 1001 & 0 & 0 & 1 & 0 \\
+XOR   & 0001010 & 01 & 1010 & 0 & 0 & 1 & 0 \\
+NOT   & 0001011 & 01 & 1011 & 0 & 0 & 1 & 0 \\
+MOVB  & 0001100 & 01 & 1100 & 0 & 0 & 1 & 0 \\
+\hline
+LD    & 0010000 & 01 & ---  & 0 & 1 & 1 & 0 \\
+ST    & 0100000 & 01 & ---  & 0 & 0 & 0 & 1 \\
+ADI   & 1000010 & 01 & 0010 & 1 & 0 & 1 & 0 \\
+LDI   & 1001100 & 01 & 1100 & 1 & 0 & 1 & 0 \\
+\hline
+BRZ   & 1100000 & 10/01 & --- & 0 & 0 & 0 & 0 \\
+BRN   & 1100001 & 10/01 & --- & 0 & 0 & 0 & 0 \\
+JMP   & 1110000 & 11 & ---  & 0 & 0 & 0 & 0 \\
+\hline
+LRI   & 0010001 & 00 & ---  & 0 & 1 & 1 & 0 \\
+SRM   & 0001101 & 00/01 & --- & 0 & 0 & 1 & 0 \\
+SLM   & 0001110 & 00/01 & --- & 0 & 0 & 1 & 0 \\
+\hline
+\end{tabular}
+\caption{Kontrolord for hver instruktion i EX0. Branch PS afhænger af flag.}
+\label{tab:idc-controlword}
+\end{table}
 
 \subsection{VHDL Implementering}
 \label{sec:idc-vhdl}
-% VHDL kode og forklaring af to-process model (state register + next state/output logic)
+
+Den kombinatoriske process bruger en \emph{case-in-case} struktur: det ydre case-statement
+vælger tilstand, og det indre case-statement i EX0/EX1 dekoder opcoden.
+Standardværdier sættes øverst i processen for at undgå utilsigtede latches:
+
+\begin{lstlisting}[style=vhdl, caption={IDC kombinatorisk process (uddrag)}, label={lst:idc-comb}]
+control_logic: process(current_state, IR, V, C, N, Z)
+begin
+    -- Standardværdier (undgår latches)
+    next_state <= INF;
+    PS  <= "00";  IL  <= '0';
+    DX  <= '0' & IR(8 downto 6);
+    AX  <= '0' & IR(5 downto 3);
+    BX  <= '0' & IR(2 downto 0);
+    MB  <= '0';   FS  <= "0000";
+    MD  <= '0';   RW  <= '0';
+    MM  <= '0';   MW  <= '0';
+
+    case current_state is
+        when INF =>
+            next_state <= EX0;
+            IL <= '1';  MM <= '1';
+
+        when EX0 =>
+            case IR(15 downto 9) is
+                when "0000000" | "0000001" | ... =>
+                    -- ALU register-register
+                    next_state <= INF;
+                    PS <= "01";
+                    FS <= IR(12 downto 9);
+                    RW <= '1';
+                ...
+            end case;
+        ...
+    end case;
+end process;
+\end{lstlisting}
+
+Et vigtigt designvalg er at FS for ALU-operationer aflæses direkte fra \texttt{IR(12:9)}.
+Opcoden er kodet så bits 12--9 matcher funktionskoden i ALU'en, hvilket eliminerer behovet
+for en separat oversættelsestabel.
 
 \subsection{Test}
 \label{sec:idc-test}
-% Testbench og verifikation -- ADD, LD, BRZ, JMP, etc.
+
+IDC er verificeret med en testbench opdelt i fire grupper via en \texttt{TEST\_GROUP} konstant.
+Hver gruppe kan køres separat for at holde simuleringstiden kort og
+bølgeformerne overskuelige.
+
+\subsubsection{Testmetode}
+
+Testbenchen bruger VHDL \texttt{assert}-statements til automatisk verifikation.
+For hver instruktion sættes IR til den relevante opcode, og efter én clockcyklus
+(plus 1~ns delta for signalpropagering) kontrolleres de forventede kontrolsignaler.
+Hvis et signal afviger fra den forventede værdi, rapporterer simulatoren en fejl
+med instruktionsnavn og forventet værdi i TCL-konsollen.
+
+Mønsteret for en enkelt 2-cyklus instruktion er:
+
+\begin{lstlisting}[style=vhdl, caption={Testbench assert-mønster (eksempel: ADD)}, label={lst:idc-tb-pattern}]
+-- Sæt IR til ADD-instruktion (opcode=0000010, DR=001, SA=010, SB=011)
+IR <= make_ir("0000010");
+wait until rising_edge(CLK); wait for 1 ns;  -- EX0 outputs stabile
+assert FS = "0010" report "ADD: FS expected 0010" severity error;
+assert RW = '1'    report "ADD: RW expected 1"    severity error;
+assert PS = "01"   report "ADD: PS expected 01"   severity error;
+wait until rising_edge(CLK);  -- Tilbage til INF
+\end{lstlisting}
+
+Hjælpefunktionen \texttt{make\_ir} sammensætter en 16-bit IR-værdi fra opcode og
+registeradresser, hvilket gør testcases kompakte og læsbare.
+
+Hvis alle asserts består, vises kun \texttt{Note}-beskeder i TCL-outputtet.
+Hvis et assert fejler, vises en \texttt{Error}-besked med det specifikke signal
+og forventede værdi --- dette gør det muligt hurtigt at lokalisere fejlen.
+Fraværet af \texttt{Error}-beskeder i outputtet bekræfter at alle kontrolsignaler
+er korrekte.
+
+\subsubsection{Gruppe 1: ALU Register-Register}
+
+Tester alle ti ALU-operationer (MOVA, INC, ADD, SUB, DEC, OR, AND, XOR, NOT, MOVB).
+For hver instruktion verificeres at FS matcher den forventede funktionskode,
+at RW=1 (register write), og at PS=01 (PC increment).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/idc_tb_group1.png}
+    \caption{Simulering af Gruppe 1: ALU register-register operationer.
+             IR skifter opcode for hver instruktion, og FS følger med den korrekte funktionskode.}
+    \label{fig:idc-tb-g1}
+\end{figure}
+
+\begin{verbatim}
+Note: === Group 1: ALU register-register ===
+Note: === Group 1: PASSED ===
+Note: === Test group 1 completed ===
+\end{verbatim}
+
+\subsubsection{Gruppe 2: Memory \& Immediate}
+
+Tester LD, ST, ADI og LDI. Verificerer korrekt MD (memory data select),
+MW (memory write), MB (MUX B for immediate operander) og FS.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/idc_tb_group2.png}
+    \caption{Simulering af Gruppe 2: Memory og immediate instruktioner.}
+    \label{fig:idc-tb-g2}
+\end{figure}
+
+\begin{verbatim}
+Note: === Group 2: Memory & Immediate ===
+Note: === Group 2: PASSED ===
+Note: === Test group 2 completed ===
+\end{verbatim}
+
+\subsubsection{Gruppe 3: Branch \& Jump}
+
+Tester BRZ (branch on zero), BRN (branch on negative) og JMP.
+For branch-instruktionerne testes både taget og ikke-taget tilfælde
+ved at variere Z- og N-flag.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/idc_tb_group3.png}
+    \caption{Simulering af Gruppe 3: Branch og jump instruktioner.
+             PS skifter mellem 10 (branch taget) og 01 (ikke taget).}
+    \label{fig:idc-tb-g3}
+\end{figure}
+
+\begin{verbatim}
+Note: === Group 3: Branch & Jump ===
+Note: === Group 3: PASSED ===
+Note: === Test group 3 completed ===
+\end{verbatim}
+
+\subsubsection{Gruppe 4: Multi-cycle (LRI, SRM, SLM)}
+
+Tester flercyklus-instruktionerne. LRI verificerer 3-cyklus forløbet
+(EX0: load til R8, EX1: load fra R8-adresse). SRM/SLM tester
+shift-løkken inklusive tidlig afslutning ved Z=1 og korrekt
+gennemløb af EX2$\leftrightarrow$EX3 løkken.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/idc_tb_group4.png}
+    \caption{Simulering af Gruppe 4: Multi-cycle instruktioner.
+             Bemærk de ekstra tilstande EX1--EX4 for SRM/SLM.}
+    \label{fig:idc-tb-g4}
+\end{figure}
+
+\begin{verbatim}
+Note: === Group 4: Multi-cycle ===
+Note: === Group 4: PASSED ===
+Note: === Test group 4 completed ===
+\end{verbatim}
+
+Alle 24 individuelle tests bestod uden fejl i Vivado XSim.
 
 \ifdefined\mainfile\else
 \end{document}
