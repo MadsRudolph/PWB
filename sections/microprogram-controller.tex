@@ -5,33 +5,155 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstdefinestyle{vhdl}{
+    language=VHDL,
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    literate=%
+        {æ}{{\ae}}1
+        {ø}{{\o}}1
+        {å}{{\aa}}1
+        {Æ}{{\AE}}1
+        {Ø}{{\O}}1
+        {Å}{{\AA}}1,
+}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
 \begin{document}
 \fi
 
 \section{Microprogram Controller (Top-Level)}
 \label{sec:mpc}
-% Strukturel top-level entity der forbinder alle submoduler
-% ProgramCounter, InstructionRegister, SignExtender, ZeroFiller, IDC
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\linewidth]{images/mpc/TODO_mpc_toplevel.png}
-%     \caption{Microprogram Controller top-level blokdiagram}
-%     \label{fig:mpc-toplevel}
-% \end{figure}
+Microprogram Controlleren (MPC) er topmodulet der forbinder alle submoduler til et samlet styringskredsløb. Modulet modtager en instruktion fra hukommelsen og statusflag fra datavejen, og producerer det komplette kontrolord samt næste hukommelsesadresse.
 
 \subsection{Intern Signalflow}
 \label{sec:mpc-signals}
-% Beskrivelse af interne signaler og hvordan modulerne er forbundet
+
+MPC'en forbinder fem submoduler via interne signaler som vist i figur~\ref{fig:PWBTop}. Signalflowet er som følger:
+
+\begin{enumerate}
+    \item \textbf{Instruction Register} modtager \texttt{Instruction\_In} (16 bit) fra hukommelsen og load-signalet \texttt{IL} fra IDC. Når IL er høj ved en opadgående clockflanke, indlæses instruktionen i IR. Det interne signal \texttt{IR\_sig} (16 bit) distribueres til tre moduler: Sign Extender, Zero Filler og IDC.
+
+    \item \textbf{Sign Extender} modtager \texttt{IR\_sig} og producerer et 8-bit fortegnsudvidet offset (\texttt{Extended\_sig}), som føres til Program Counterens offset-input. Dette bruges ved branch-instruktioner (PS=10).
+
+    \item \textbf{Zero Filler} modtager \texttt{IR\_sig} og producerer et 8-bit nulfyldt konstantfelt, som føres direkte til topmodulets \texttt{Constant\_Out}. Dette bruges af datavejen ved immediate-instruktioner (ADI, LDI).
+
+    \item \textbf{Program Counter} modtager \texttt{PS\_sig} (2 bit) fra IDC, \texttt{Extended\_sig} fra Sign Extenderen og \texttt{Address\_In} fra topmodulets input. PC-outputtet drives direkte til \texttt{Address\_Out} uden mellemliggende signal.
+
+    \item \textbf{IDC} modtager \texttt{IR\_sig} og statusflag (V, C, N, Z) og genererer alle kontrolsignaler. De interne signaler \texttt{PS\_sig} og \texttt{IL\_sig} bruges til styring af henholdsvis PC og IR. De resterende kontrolsignaler (DX, AX, BX, FS, MB, MD, RW, MM, MW) forbindes direkte til topmodulets udgange.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Internt signal} & \textbf{Bredde} & \textbf{Forbindelse} \\
+\hline
+\texttt{IR\_sig}       & 16 bit & IR $\rightarrow$ IDC, Sign Extender, Zero Filler \\
+\texttt{PS\_sig}       & 2 bit  & IDC $\rightarrow$ Program Counter \\
+\texttt{IL\_sig}       & 1 bit  & IDC $\rightarrow$ Instruction Register \\
+\texttt{Extended\_sig} & 8 bit  & Sign Extender $\rightarrow$ Program Counter (Offset) \\
+\hline
+\end{tabular}
+\caption{Interne signaler i MPC topmodulet}
+\label{tab:mpc-signals}
+\end{table}
 
 \subsection{VHDL Implementering}
 \label{sec:mpc-vhdl}
-% Strukturel VHDL kode -- component instantiation og port mapping
+
+Topmodulet er implementeret rent strukturelt ved direkte instansiering af de fem submoduler. Arkitekturen indeholder ingen processer eller kombinatorisk logik udover port-mapping. De fire interne signaler fra tabel~\ref{tab:mpc-signals} forbinder submodulerne.
+
+\begin{lstlisting}[style=vhdl, caption={MPC strukturel arkitektur (uddrag)}, label={lst:mpc-arch}]
+architecture MCU_Structural of MicroprogramController is
+    signal IR_sig       : std_logic_vector(15 downto 0);
+    signal PS_sig       : std_logic_vector(1 downto 0);
+    signal IL_sig       : std_logic;
+    signal Extended_sig : std_logic_vector(7 downto 0);
+begin
+    PC_inst: entity work.ProgramCounter
+    port map(
+        RESET => RESET, CLK => CLK,
+        Address_In => Address_In,
+        PS => PS_sig, Offset => Extended_sig,
+        CarryO => open, PC => Address_Out
+    );
+
+    IR_inst: entity work.InstructionRegister
+    port map(
+        RESET => RESET, CLK => CLK,
+        Instruction_In => Instruction_In,
+        IL => IL_sig, IR => IR_sig
+    );
+
+    SE_inst: entity work.SignExtender
+    port map(IR => IR_sig, Extended_8 => Extended_sig);
+
+    ZF_inst: entity work.ZeroFiller
+    port map(IR => IR_sig, ZeroFilled_8 => Constant_Out);
+
+    IDC_inst: entity work.InstructionDecoderController
+    port map(
+        RESET => RESET, CLK => CLK,
+        IR => IR_sig, V => V, C => C, N => N, Z => Z,
+        PS => PS_sig, IL => IL_sig,
+        DX => DX, AX => AX, BX => BX, FS => FS,
+        MB => MB, MD => MD, RW => RW, MM => MM, MW => MW
+    );
+end MCU_Structural;
+\end{lstlisting}
+
+\noindent Et vigtigt designvalg er at PC-outputtet mappes direkte til \texttt{Address\_Out} i port-mapping uden et mellemliggende signal. Da \texttt{Address\_Out} er en ren udgang og ikke læses internt, er dette den simpleste løsning. Program Counterens ubrugte \texttt{CarryO}-output mappes til \texttt{open}.
 
 \subsection{Test}
 \label{sec:mpc-test}
-% Integrations-testbench -- ADD, MOVA, LDI, JMP, etc. gennem top-level
+
+MPC topmodulet er verificeret med en integrations-testbench, der tester det samlede samspil mellem alle submoduler. I modsætning til IDC-testbenchen, hvor IR sættes direkte, drives her kun topmodulets eksterne signaler (\texttt{Instruction\_In}, \texttt{Address\_In}, statusflag). Instruktionen skal gennemløbe IR-loadning i INF-tilstanden før den kan eksekveres, hvilket verificerer hele den interne signalkæde.
+
+\subsubsection{Testmetode}
+
+Testbenchen følger samme gruppebaserede tilgang som IDC-testbenchen med en \texttt{TEST\_GROUP} konstant (1--4). For hver instruktion er forløbet:
+
+\begin{enumerate}
+    \item \texttt{Instruction\_In} sættes til den ønskede instruktion (via \texttt{make\_ir} hjælpefunktionen)
+    \item Første rising edge: INF $\rightarrow$ EX0, IR loader instruktionen
+    \item Efter 1~ns delta: EX0 kontrolsignaler verificeres med assert-statements
+    \item Anden rising edge: EX0 $\rightarrow$ INF, PC opdateres
+    \item \texttt{Address\_Out} verificeres mod den forventede PC-værdi
+\end{enumerate}
+
+\noindent En variabel \texttt{expected\_pc} holder styr på den forventede PC-værdi og opdateres automatisk efter hver instruktion (inkrement, branch eller jump). Dette gør det muligt at verificere at PC-logikken fungerer korrekt i samspil med IDC'ens PS-signal.
+
+\subsubsection{Testgrupper}
+
+\begin{itemize}
+    \item \textbf{Gruppe 1 -- ALU register-register:} Alle ti ALU-operationer (MOVA, INC, ADD, SUB, DEC, OR, AND, XOR, NOT, MOVB). For hver instruktion verificeres FS, RW, DX, AX, MB samt at PC inkrementeres korrekt. Desuden verificeres \texttt{Constant\_Out} fra Zero Filleren.
+
+    \item \textbf{Gruppe 2 -- Memory \& Immediate:} LD, ST, ADI og LDI. Verificerer MD, MW, MM, MB og FS. For ADI og LDI kontrolleres at \texttt{Constant\_Out} matcher det forventede zero-filled konstantfelt.
+
+    \item \textbf{Gruppe 3 -- Branch \& Jump:} BRZ (taget og ikke-taget), BRN (taget og ikke-taget) og JMP. Her verificeres at \texttt{Address\_Out} faktisk ændres korrekt: branch adderer Sign Extender-offsettet til PC, jump loader \texttt{Address\_In}, og ikke-taget branch inkrementerer. Efter et jump verificeres at PC fortsat inkrementerer normalt.
+
+    \item \textbf{Gruppe 4 -- Multi-cycle:} LRI (3-cyklus), SRM med Z=1 (tidlig afslutning), SRM med Z=0 (fuld shift-løkke med EX2$\leftrightarrow$EX3) og SLM. Verificerer at PC holdes under hele flercyklus-forløbet og først inkrementeres ved afslutning. Kontrolsignaler (DX, AX, FS, MB, RW) verificeres i hver tilstand.
+\end{itemize}
+
+\noindent Simuleringsresultaterne for alle fire testgrupper er vist i sektion~\ref{sec:synthesis-mpc}.
 
 \ifdefined\mainfile\else
 \end{document}

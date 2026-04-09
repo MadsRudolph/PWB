@@ -96,6 +96,78 @@ blev rapporteret, hvilket bekræfter at samtlige 24 assert-statements bestod.
 \label{tab:idc-test-results}
 \end{table}
 
+\subsection{MPC Top-Level Simulering}
+\label{sec:synthesis-mpc}
+
+MPC topmodulets testbench verificerer det samlede samspil mellem alle submoduler.
+Testbenchen er opdelt i fire grupper (se testmetode i sektion~\ref{sec:mpc-test}).
+
+\subsubsection{Gruppe 1: ALU Register-Register}
+
+Tester alle ti ALU-operationer gennem hele signalkæden: \texttt{Instruction\_In} $\rightarrow$ IR $\rightarrow$ IDC $\rightarrow$ kontrolsignaler. For hver instruktion verificeres at FS, RW, DX og AX er korrekte, at \texttt{Constant\_Out} matcher Zero Fillerens output, og at \texttt{Address\_Out} (PC) inkrementeres efter hver instruktion.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/syntese/mpc_tb_group1.png}
+    \caption{Simulering af MPC Gruppe 1: ALU register-register. Address\_Out inkrementeres fra 00 til 0A gennem ti instruktioner.}
+    \label{fig:mpc-tb-g1}
+\end{figure}
+
+\subsubsection{Gruppe 2: Memory \& Immediate}
+
+Tester LD, ST, ADI og LDI gennem topmodulet. Verificerer at MB=1 for immediate-instruktioner, at \texttt{Constant\_Out} indeholder det korrekte zero-filled konstantfelt, og at PC inkrementeres.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/syntese/mpc_tb_group2.png}
+    \caption{Simulering af MPC Gruppe 2: Memory og immediate instruktioner.}
+    \label{fig:mpc-tb-g2}
+\end{figure}
+
+\subsubsection{Gruppe 3: Branch \& Jump}
+
+Tester branch- og jump-instruktioner med fokus på \texttt{Address\_Out}-verifikation. BRZ med Z=1 udfører branch med Sign Extender-offset (PC $\leftarrow$ PC + 3 = 03). BRZ med Z=0 inkrementerer normalt. BRN med N=1 brancher (PC $\leftarrow$ PC + 10 = 0E). JMP loader \texttt{Address\_In} = 42 direkte i PC. Efterfølgende MOVA bekræfter at PC fortsat inkrementerer normalt efter jump (43).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/syntese/mpc_tb_group3.png}
+    \caption{Simulering af MPC Gruppe 3: Branch og jump. Address\_Out følger sekvensen 00 $\rightarrow$ 03 $\rightarrow$ 04 $\rightarrow$ 0E $\rightarrow$ 0F $\rightarrow$ 42 $\rightarrow$ 43.}
+    \label{fig:mpc-tb-g3}
+\end{figure}
+
+\subsubsection{Gruppe 4: Multi-cycle}
+
+Tester flercyklus-instruktionerne LRI, SRM og SLM. Verificerer at \texttt{Address\_Out} holdes konstant under hele flercyklus-forløbet og først inkrementeres ved afslutning. SRM med Z=0 gennemløber den fulde shift-løkke (EX0 $\rightarrow$ EX1 $\rightarrow$ EX2 $\leftrightarrow$ EX3 $\rightarrow$ EX4 $\rightarrow$ INF) mens PC forbliver uændret.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/syntese/mpc_tb_group4.png}
+    \caption{Simulering af MPC Gruppe 4: Multi-cycle instruktioner. Address\_Out holder sin værdi under flercyklus-forløb.}
+    \label{fig:mpc-tb-g4}
+\end{figure}
+
+\subsubsection{Verifikationsresultat}
+
+Alle fire testgrupper blev kørt i Vivado XSim. Ingen \texttt{Error}-beskeder blev rapporteret.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|l|c|c|}
+\hline
+\textbf{Gruppe} & \textbf{Beskrivelse} & \textbf{Antal tests} & \textbf{Resultat} \\
+\hline
+1 & ALU register-register  & 10 & PASSED \\
+2 & Memory \& Immediate    & 4  & PASSED \\
+3 & Branch \& Jump         & 5  & PASSED \\
+4 & Multi-cycle (LRI, SRM, SLM) & 5 & PASSED \\
+\hline
+  & \textbf{Total}         & \textbf{24} & \textbf{PASSED} \\
+\hline
+\end{tabular}
+\caption{Testresultater for MPC top-level testbench. Alle grupper bestod uden fejl.}
+\label{tab:mpc-test-results}
+\end{table}
+
 \ifdefined\mainfile\else
 \end{document}
 \fi
