@@ -12,7 +12,13 @@
 \section{Konklusion}
 \label{sec:conclusion}
 % Opsummering af resultater
-
+I dette projekt er der designet, implementeret og testet en komplet mikroprogram-controller i overensstemmelse med specifikationerne for Project Work B i kurset 62711 – Design of Digital Systems. Controlleren består af en Program Counter, Instruction Register, Sign Extender, Zero Filler samt en Instruction Decoder, som tilsammen udgør styringsdelen af et simpelt mikroprogrammeret system.
+\\
+Alle moduler er designet strukturelt og implementeret i VHDL med udgangspunkt i projektets top‑down‑arkitektur, men udviklet ved en bottom‑up tilgang med selvstændig test af hvert delmodul. Funktionaliteten af Program Counterens fire driftsformer (hold, increment, branch og jump) er verificeret både via timing‑diagrammer og simuleringer. Instruction Registeret, Sign‑Extenderen og Zero‑Filleren er ligeledes testet og opfylder de specificerede krav.
+\\
+Instruction Decoder er implementeret som en Mealy‑type finit state machine og understøtter både simple to‑cyklus instruktioner samt mere komplekse fler‑cyklus instruktioner som LRI, SRM og SLM. State‑diagrammer og kontrolord er udarbejdet og implementeret direkte i overensstemmelse med projektbeskrivelsen. Funktionaliteten er verificeret ved hjælp af en assert‑baseret testbench, som automatisk kontrollerer samtlige relevante kontrolsignaler.
+\\
+Samlet set viser simuleringerne, at alle moduler samt top‑niveauet fungerer korrekt, og at alle testcases gennemføres uden fejl. Projektet har givet en øget forståelse for mikroprogrammerede controllere, samspillet mellem kontrol og datavej samt betydningen af systematisk test og verifikation i digitalt design.
 \ifdefined\mainfile\else
 \end{document}
 \fi

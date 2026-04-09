@@ -23,22 +23,69 @@
 
 \subsection{Design}
 \label{sec:pc-design}
-% Beskrivelse af PC logik og PS kontrolsignaler
-husk at referere 
+Program Counteren (PC) er designet med udgangspunkt i figur 6-14 fra \textit{Logic and Computer Design Fundamentals} af M. Morris Mano og Charles R. Kime. Designet opfylder desuden funktionskravene specificeret i projektbeskrivelsen for Project Work B, herunder de fire operationstilstande styret af Program Select-signalet (PS).\\
+PC-modulet består af et 8-bit register, en adder samt en multiplexer, som tilsammen muliggør hold, inkrementering, branch og  jump. Valget af næste PC-værdi foretages af multiplexeren baseret på PS-signalet, hvorefter værdien indlæses i PC-registeret på en rising edge af kloksignalet (CLK).\\
+Figur~\ref{fig:4bitCounter} viser det overordnede blokdiagram for Program Counteren, dog er implementeringen udviddet til 8 bit, fremfor de 4 bit der ses på figuren.
+Figur~\ref{fig:PCSandhedstabel} viser den tilhørende sandhedstabel.\\
+Når PS = 00, holdes PC-registerets nuværende værdi.  
+Når PS = 01, inkrementeres PC med én ved hver opadgående flanke af CLK, (PC $\leftarrow$ PC + 1).  
+Når PS = 10, udføres en branch-operation, hvor PC opdateres ved at addere et 8-bit offset til den nuværende PC-værdi (PC $\leftarrow$ PC + Offset). Offsetet kommer fra signextenderen.\\
+Når PS = 11, udføres et jump, hvor PC-registeret indlæses med en ekstern adresse \textit{Address\_In}.\\
+PC-modulet er desuden forsynet med et RESET-signal, som ved aktivering nulstiller PC-registeret til 0 uafhængigt af PS-signalet.\\
+Samlet set følger Program Counterens funktionalitet direkte sandhedstabellen vist i figur~\ref{fig:PCSandhedstabel} og opfylder kravene til styring af instruktionssekvensen.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{image.png}
-    \caption{Program counter 4-bit}
-    \label{fig:placeholder}
+    \includegraphics[width=1\linewidth]{Skærmbillede 2026-03-27 100937.png}
+    \caption{Program Counter funktionsdiagram}
+    \label{fig:4bitCounter}
 \end{figure}
+ 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{PCSandhedstabel.png}
+    \caption{Sandhedstabel for PC}
+    \label{fig:PCSandhedstabel}
+\end{figure}
+
+Der er lavet et timing diagram for PC (figur ~\ref{fig:TimingPC}), som viser hvordan PC forventes at opfører sig.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{PC Tid.png}
+    \caption{Timing diagram for PC}
+    \label{fig:TimingPC}
+\end{figure}
+
 \subsection{VHDL Implementering}
 \label{sec:pc-vhdl}
 % VHDL kode og forklaring
 
+Program Counteren er implementeret strukturelt i VHDL og består af otte identiske 1-bit CounterLogic-moduler, som tilsammen danner et 8-bit register med tælle- og load-funktionalitet. Denne opbygning følger funktionsdiagrammet for et synkront binært tælleregister, vist i figur~\ref{fig:4bitCounter}.
+\\
+Hvert CounterLogic-modul indeholder et D-flipflop samt kombinatorisk logik, der muliggør tre operationer: hold, inkrementering og parallel load. Modulerne er koblet i en ripple-carry struktur, hvor carry-out-signalet (CO) fra hvert bit føres videre til carry-in (Cin) på det næste bit. Dette gør det muligt at inkrementere PC-værdien med 1 ved brug af carry-kæden.
+\\
+PC-registerets aktuelle værdi gemmes i signalet \texttt{PCsig}, som samtidigt anvendes som operanden i en ekstern 8-bit fulladder. Fulladderen bruges udelukkende til branch-operationen, hvor offsetværdien lægges til den nuværende PC-værdi (PC $\leftarrow$ PC + Offset).
+\\
+Signalerne \texttt{Load} og \texttt{Count} genereres udelukkende ud fra Program Select-signalet (PS). Når PS er lig 10 eller 11, aktiveres \texttt{Load}, således at PC-registeret indlæses parallelt. Når PS er 01, aktiveres \texttt{Count}, hvilket medfører inkrementering af PC med én via carry-kæden. Ved PS = 00 er både Load og Count inaktive, og PC-registeret holder sin nuværende værdi.
+\\
+En 8-bit multiplexer (\texttt{MUXP}) anvendes til at vælge den værdi, der indlæses i PC-registeret ved load-operationer. Ved PS = 10 vælges summen fra fuldadderen (PC + Offset), svarende til en branch-instruktion. Ved PS = 11 vælges den eksterne adresse \texttt{Address\_In}, hvilket realiserer en jump-instruktion. Ved øvrige PS-kombinationer er multiplexerens output uden betydning, da load ikke er aktiv.
+\\
+Reset-signalet er ført til samtlige CounterLogic-moduler og nulstiller PC-registeret synkront ved aktivering. Det samlede output \texttt{PC} drives direkte af \texttt{PCsig}.
+\\
+Denne strukturelle implementering sikrer en direkte og gennemsigtig realisering af PC’ens funktionalitet i overensstemmelse med den specificerede sandhedstabel og projektkravene.
+
+
 \subsection{Test}
 \label{sec:pc-test}
 % Testbench og verifikation -- Hold, Increment, Branch, Jump
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{TBPC.png}
+    \caption{Testbench for PC}
+    \label{fig:placeholder}
+\end{figure}
 
+Testbenchen viser, at PC virker som forventet.
 \ifdefined\mainfile\else
 \end{document}
 \fi

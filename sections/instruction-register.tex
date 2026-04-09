@@ -25,14 +25,97 @@
 \subsection{Design}
 \label{sec:ir-design}
 % Beskrivelse af IR logik og IL kontrolsignal
+Instruction Register, er et register som holder en 16 bit instruktion fra hukommelsen. Den styres af et load signal (IL), hvis dette signal er logisk højt læses den 16 bit instruktion ind fra hukommelsen og hvis den er logisk lav så holdes den sidst indlæste instruktion. Sandhedstabellen for den ønskede funktionalitet ses nedenfor og er taget fra opgavebeskrivelsen:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Instruction register sandhedstabel.png}
+    \caption{Sandhedstabel, Instruction Register}
+    \label{fig:ir-truthtable}
+\end{figure}
+
+\noindent For at designe et modul som kan udføre dette bruges et 16-bit register lavet af d-flip flops. For at styre registerets indlæsning, bruges som nævnt i forrige afsnit et load (IL) som styrer om der bliver loadet en instruktion ind ved en høj clock kant eller ikke, dette sikrer at registeret kun indlæser i registeret når det IL er logisk høj. Instruction\_In ledes direkte til D på D-flip floppen som så ved næste opadgående flanke på clk, hvor IL er høj kommer ud på udgangen af Q. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{IRModul.png}
+    \caption{Instruction register moduldiagram}
+    \label{fig:IRModul}
+\end{figure}
+
+
+\noindent Herunder ses et timing-diagrammer for modulet, der gennemløber alle de mulige funktioner som vi vil have modulet til at kunne udføre. Disse timing diagrammer sammenholdes med testbenches som ligger under test, og hvis modulet virker som det skal vil disse være ens. \\
+Disse diagrammer skal ses som et enkelt timing diagram som er delt op i 3 diagrammer.
+\newpage
+\noindent I denne del som man kan se på Timing diagrammet skal vi kunne sikre at systemet ikke loader instruction register (IR) med Instruction\_in når Load (IL) er logisk lav.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{IR1.2.png}
+    \caption{Timing IR del 1}
+    \label{fig:placeholder}
+\end{figure}
+
+\noindent I denne del af timing diagrammet skal vi kunne sikre at systemet kun loader instruction register (IR) når IL er logisk høj og at det kun sker på en opadgående CLK-flanke, samt at det asynkrone RESET kan nulstille registeret lige så snart RESET signalet går højt uagtet om der er en opadgående  CLK-flanke. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{IR2.2.png}
+    \caption{Timing IR del 2}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{IR3.png}
+    \caption{Timing IR del 3}
+    \label{fig:placeholder}
+\end{figure}
 
 \subsection{VHDL Implementering}
 \label{sec:ir-vhdl}
+
+Instruction Registeret (IR) er implementeret som et 16-bit synkront register med load-enable og reset-funktionalitet. Implementeringen er baseret på et tidligere anvendt D-flip-flop-design, som er udvidet fra ét bit til 16 bit. Dette muliggør lagring af hele instruktionen i ét samlet modul fremfor 16 separate registre.
+\\
+Det underliggende modul \texttt{flip\_flop\_16} er modelleret behavioralt ved hjælp af en clocked process. Registeret nulstilles, når reset-signalet er aktivt, hvilket sætter alle bits i IR til nul. Ved den positive flanke af kloksignalet opdateres registerets indhold med signalet \texttt{Instruction\_In}, såfremt load-signalet \texttt{IL} er høj. Hvis \texttt{IL} er lav, fastholder registeret sin nuværende værdi.
+\\
+Load-signalet \texttt{IL} fungerer dermed som en clock-enable og sikrer, at instruktionen kun indlæses i overensstemmelse med sandhedstabellen vist i figur~\ref{fig:ir-truthtable}. Når \texttt{IL = 0}, vil IR forblive uændret, også selvom der forekommer en opadgående flanke på clk.
+\\
+Instruction Registeret er instansieret strukturelt i topmodulet via det generiske flip-flop-modul, hvor \texttt{Instruction\_In} tilsluttes D-inputtet, \texttt{IL} til load-signalet og outputtet \texttt{IR} leverer den lagrede instruktion til Instruction Decoder/Controller og de tilhørende hjælpeblokke som Sign-Extender og Zero-Filler.
+
+
+
 % VHDL kode og forklaring
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{Instruction register.png}
+    \caption{Instruction register VHDL-implementering}
+    \label{fig:placeholder}
+\end{figure}
 
 \subsection{Test}
 \label{sec:ir-test}
 % Testbench og verifikation
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Testbench IR 1.png}
+    \caption{Testbench for IR 1}
+    \label{fig:TBIR1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{TBIR2.png}
+    \caption{Testbench for IR 2}
+    \label{fig:TBIR2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{TBIR3.png}
+    \caption{Testbench for IR 3}
+    \label{fig:TBIR3}
+\end{figure}
+
+Testbenchesene viser, at koden virker som forventet.
 
 \subsection{Sign Extender}
 \label{sec:sign-extender}
@@ -42,11 +125,36 @@
 
 \subsubsection{Design}
 \label{sec:se-design}
+Sign-Extenderen er designet i overensstemmelse med projektbeskrivelsen og anvendes til at generere et 8-bit offset med bevaret fortegn. Modulet benytter bit IR(8) som fortegnsbit, som kopieres til de tre mest betydende bits i outputtet.
+\\
+De resterende bits i outputtet dannes ud fra IR(7 downto 6) og IR(2 downto 0). Derved opnås en korrekt to-komplements repræsentation af instruktionens offset, som kan anvendes i branch-instruktioner.
 % Beskrivelse af sign extension logik
+
+\subsubsection{Implentering}
+\label{sec:se-VHDL}
+Sign-Extenderen er et rent kombinatorisk modul, som er designet til at generere en 8-bit værdi ud fra udvalgte bits i Instruction Registeret (IR) under bevarelse af to-komplements repræsentation. Modulet anvendes primært i forbindelse med branch-instruktioner, hvor et relativt offset kan være både positivt og negativt.\\
+Sign-Extenderen benytter bit IR(8) som fortegnsbit. Denne bit kopieres til de tre mest betydende bits i outputtet, mens de resterende bits dannes ud fra IR(7 downto 6) og IR(2 downto 0). Derved opnås en korrekt fortegnsudvidelse fra instruktionens felt til et 8-bit offset.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{SignExtender.png}
+    \caption{SignExtender funktionsdiagram}
+    \label{fig:placeholder}
+\end{figure}
 
 \subsubsection{Test}
 \label{sec:se-test}
 % Testbench og verifikation
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{SETB.png}
+    \caption{Testbench for SignExtender}
+    \label{fig:SETB}
+\end{figure}
+
+Testbenchen viser, at modullet virker som forventet.
 
 \subsection{Zero Filler}
 \label{sec:zero-filler}
@@ -55,11 +163,39 @@
 \subsubsection{Design}
 \label{sec:zf-design}
 % Beskrivelse af zero fill logik
+Zero-Filleren er et rent kombinatorisk modul, som er designet til at generere en 8-bit værdi ved nuludvidelse af en del af Instruction Registeret. Modulet benytter de tre mindst betydende bits fra IR og indsætter fem førende nuller.
+\\
+Outputtet får dermed formen:
+\[
+\text{ZeroFilled\_8} = 00000\,IR(2:0)
+\]
+\\
+Zero-Filleren anvendes i instruktioner, hvor der indgår et lille positivt konstantfelt, og hvor fortegnsudvidelse ikke er nødvendig.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{ZeroFiller.png}
+    \caption{Zero Filler funktionsdiagram}
+    \label{fig:ZeroFiller}
+\end{figure}
+
+
+\subsubsection{Implementering}
+\label{sec:zerofiller-vhdl}
+
+Zero-Filleren er implementeret som et rent kombinatorisk modul i VHDL. Outputsignalet \texttt{ZeroFilled\_8} dannes ved at sammensætte fem konstante nuller med de tre mindst betydende bits fra inputtet \texttt{IR}. Implementeringen kræver ingen processer eller kloksignal og realiseres som en samtidig signaltilordning.
 
 \subsubsection{Test}
 \label{sec:zf-test}
 % Testbench og verifikation
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{ZFTB.png}
+    \caption{Testbench for ZeroFiller}
+    \label{fig:ZFTB}
+\end{figure}
 
+Testbenchen viser, at modullet virker som forventet.
 \ifdefined\mainfile\else
 \end{document}
 \fi

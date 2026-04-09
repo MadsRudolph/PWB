@@ -68,7 +68,7 @@ og en to-process model:
           og alle kontrolsignaler baseret på \texttt{current\_state}, opcode (\texttt{IR(15:9)}) og statusflag.
 \end{enumerate}
 
-Outputsignalerne udgør kontrolordet:
+Outputsignalerne der udgør kontrolordet:
 
 \begin{table}[H]
 \centering
@@ -179,7 +179,7 @@ Tilstandsovergangene for de forskellige instruktionstyper:
 \subsection{Instruktionsoversigt}
 \label{sec:idc-instructions}
 
-Tabellen viser kontrolordet for hver instruktion i EX0-tilstanden.
+Tabel \ref{tab:idc-controlword} viser kontrolordet for hver instruktion i EX0-tilstanden.
 For ALU-operationer gælder at FS aflæses direkte fra \texttt{IR(12:9)}.
 
 \begin{table}[H]
@@ -258,7 +258,7 @@ begin
 end process;
 \end{lstlisting}
 
-Et vigtigt designvalg er at FS for ALU-operationer aflæses direkte fra \texttt{IR(12:9)}.
+\noindent Et vigtigt designvalg er at FS for ALU-operationer aflæses direkte fra \texttt{IR(12:9)}.
 Opcoden er kodet så bits 12--9 matcher funktionskoden i ALU'en, hvilket eliminerer behovet
 for en separat oversættelsestabel.
 
@@ -277,7 +277,7 @@ For hver instruktion sættes IR til den relevante opcode, og efter én clockcykl
 Hvis et signal afviger fra den forventede værdi, rapporterer simulatoren en fejl
 med instruktionsnavn og forventet værdi i TCL-konsollen.
 
-Mønsteret for en enkelt 2-cyklus instruktion er:
+\noindent Mønsteret for en enkelt 2-cyklus instruktion er:
 
 \begin{lstlisting}[style=vhdl, caption={Testbench assert-mønster (eksempel: ADD)}, label={lst:idc-tb-pattern}]
 -- Sæt IR til ADD-instruktion (opcode=0000010, DR=001, SA=010, SB=011)
@@ -289,16 +289,16 @@ assert PS = "01"   report "ADD: PS expected 01"   severity error;
 wait until rising_edge(CLK);  -- Tilbage til INF
 \end{lstlisting}
 
-Hjælpefunktionen \texttt{make\_ir} sammensætter en 16-bit IR-værdi fra opcode og
+\noindent Hjælpefunktionen \texttt{make\_ir} sammensætter en 16-bit IR-værdi fra opcode og
 registeradresser, hvilket gør testcases kompakte og læsbare.
 
-Hvis alle asserts består, vises kun \texttt{Note}-beskeder i TCL-outputtet.
+\noindent Hvis alle asserts består, vises kun \texttt{Note}-beskeder i TCL-outputtet.
 Hvis et assert fejler, vises en \texttt{Error}-besked med det specifikke signal
 og forventede værdi --- dette gør det muligt hurtigt at lokalisere fejlen.
 Fraværet af \texttt{Error}-beskeder i outputtet bekræfter at alle kontrolsignaler
 er korrekte.
 
-Simuleringsresultaterne for alle fire testgrupper er vist i sektion~\ref{sec:synthesis-idc}.
+\noindent Simuleringsresultaterne for alle fire testgrupper er vist i sektion~\ref{sec:synthesis-idc}.
 
 \ifdefined\mainfile\else
 \end{document}
