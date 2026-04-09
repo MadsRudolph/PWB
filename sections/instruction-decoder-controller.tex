@@ -218,6 +218,33 @@ SLM   & 0001110 & 00/01 & --- & 0 & 0 & 1 & 0 \\
 \label{tab:idc-controlword}
 \end{table}
 
+\subsection{Control State Design}
+\textbf{Control State(CS)}, som udgør \textbf{state registeret}, er IDC’ens 
+tilstandshukommelse og implementeres som et synkront register med asynkront reset. 
+\textbf{CS}-blokken lagrer den aktuelle tilstand i FSM’en og opdaterer signalet 
+\texttt{current\_state} til værdien af \texttt{next\_state} på den opadgående flanke 
+af clock-signalet.
+\\ \\
+\noindent
+Ved aktivering af reset sættes \texttt{current\_state} til INF tilstanden, hvilket 
+sikrer, at systemet altid starter i Instruction Fetch fasen. \textbf{CS}-blokken 
+indeholder ingen beslutningslogik, men fungerer udelukkende som lagring af den 
+aktuelle tilstand, der anvendes som input til den kombinatoriske control logic.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Event} & \textbf{Funktion} \\
+        \hline
+        \texttt{clk} $\uparrow$ & \texttt{current\_state} $\leftarrow$ \texttt{next\_state} \\
+        \texttt{reset = 1} & \texttt{current\_state} $\leftarrow$ \texttt{INF} \\
+        \hline
+    \end{tabular}
+    \caption{Opdatering af Control State}
+    \label{tab:control_state}
+\end{table}
+
 \subsection{VHDL Implementering}
 \label{sec:idc-vhdl}
 
