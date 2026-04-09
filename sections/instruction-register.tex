@@ -51,22 +51,22 @@ Disse diagrammer skal ses som et enkelt timing diagram som er delt op i 3 diagra
     \centering
     \includegraphics[width=1\linewidth]{images/instruction-register/IR1.2.png}
     \caption{Timing IR del 1}
-    \label{fig:placeholder}
+    \label{fig:ir-timing-1}
 \end{figure}
 
-\noindent I denne del af timing diagrammet skal vi kunne sikre at systemet kun loader instruction register (IR) når IL er logisk høj og at det kun sker på en opadgående CLK-flanke, samt at det asynkrone RESET kan nulstille registeret lige så snart RESET signalet går højt uagtet om der er en opadgående  CLK-flanke. 
+\noindent I denne del af timing diagrammet skal vi kunne sikre at systemet kun loader instruction register (IR) når IL er logisk høj og at det kun sker på en opadgående CLK-flanke, samt at det asynkrone RESET kan nulstille registeret lige så snart RESET signalet går højt uagtet om der er en opadgående  CLK-flanke.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{images/instruction-register/IR2.2.png}
     \caption{Timing IR del 2}
-    \label{fig:placeholder}
+    \label{fig:ir-timing-2}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{images/instruction-register/IR3.png}
     \caption{Timing IR del 3}
-    \label{fig:placeholder}
+    \label{fig:ir-timing-3}
 \end{figure}
 
 \subsection{VHDL Implementering}
@@ -88,7 +88,7 @@ Instruction Registeret er instansieret strukturelt i topmodulet via det generisk
     \centering
     \includegraphics[width=0.7\linewidth]{images/instruction-register/Instruction register.png}
     \caption{Instruction register VHDL-implementering}
-    \label{fig:placeholder}
+    \label{fig:ir-vhdl}
 \end{figure}
 
 \subsection{Test}
@@ -131,7 +131,7 @@ Sign-Extenderen er designet i overensstemmelse med projektbeskrivelsen og anvend
 Derved opnås en korrekt to-komplements repræsentation af instruktionens offset, som kan anvendes i branch-instruktioner.
 % Beskrivelse af sign extension logik
 
-\subsubsection{Implentering}
+\subsubsection{Implementering}
 \label{sec:se-VHDL}
 Sign-Extenderen er et rent kombinatorisk modul, som er designet til at generere en 8-bit værdi ud fra udvalgte bits i Instruction Registeret (IR) under bevarelse af to-komplements repræsentation. Modulet anvendes primært i forbindelse med branch-instruktioner, hvor et relativt offset kan være både positivt og negativt.\\
 Sign-Extenderen benytter bit IR(8) som fortegnsbit. Denne bit kopieres til de tre mest betydende bits i outputtet, mens de resterende bits dannes ud fra IR(7 downto 6) og IR(2 downto 0). Derved opnås en korrekt fortegnsudvidelse fra instruktionens felt til et 8-bit offset.
@@ -141,7 +141,7 @@ Sign-Extenderen benytter bit IR(8) som fortegnsbit. Denne bit kopieres til de tr
     \centering
     \includegraphics[width=0.5\linewidth]{images/instruction-register/SignExtender.png}
     \caption{SignExtender funktionsdiagram}
-    \label{fig:placeholder}
+    \label{fig:sign-extender}
 \end{figure}
 
 \subsubsection{Test}
