@@ -70,7 +70,7 @@ Signalerne \texttt{Load} og \texttt{Count} genereres udelukkende ud fra Program 
 \\
 En 8-bit multiplexer (\texttt{MUXP}) anvendes til at vælge den værdi, der indlæses i PC-registeret ved load-operationer. Ved PS = 10 vælges summen fra fuldadderen (PC + Offset), svarende til en branch-instruktion. Ved PS = 11 vælges den eksterne adresse \texttt{Address\_In}, hvilket realiserer en jump-instruktion. Ved øvrige PS-kombinationer er multiplexerens output uden betydning, da load ikke er aktiv.
 \\
-Reset-signalet er ført til samtlige CounterLogic-moduler og nulstiller PC-registeret synkront ved aktivering. Det samlede output \texttt{PC} drives direkte af \texttt{PCsig}.
+Reset-signalet er ført til samtlige CounterLogic-moduler og nulstiller PC-registeret ved aktivering. Det samlede output \texttt{PC} drives direkte af \texttt{PCsig}.
 \\
 Denne strukturelle implementering sikrer en direkte og gennemsigtig realisering af PC’ens funktionalitet i overensstemmelse med den specificerede sandhedstabel og projektkravene.
 
