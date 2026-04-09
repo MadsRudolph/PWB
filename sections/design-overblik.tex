@@ -12,7 +12,14 @@
 \section{Design Overblik}
 \label{sec:design-overview}
 
-BLA bla bla
+PWB er en mikroprogram-controller, som styrer hvilke mikroopeationer der skal udføres ved udskrive et kontrolord. Den består af 3 moduler som er Program counter, Instruction register og Instruction decoder/controller.
+\\
+Program Counteren (PC) er et register, der indeholder adressen på den næste instruktion, som skal hentes fra hukommelsen. PC kan enten fastholde sin værdi, inkrementeres sekventielt, opdateres relativt ved en branch eller indlæses direkte ved et jump. Funktionen styres af et 2-bit kontrolsignal, PS, som bestemmer PC’ens opførsel i hver clockcyklus.
+\\
+Instruction register 
+\\
+Instruction decoder/controller
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{images/design-overblik/PWBTop.png}

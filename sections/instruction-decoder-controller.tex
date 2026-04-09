@@ -250,7 +250,7 @@ aktuelle tilstand, der anvendes som input til den kombinatoriske control logic.
 
 Den kombinatoriske process bruger en \emph{case-in-case} struktur: det ydre case-statement
 vælger tilstand, og det indre case-statement i EX0/EX1 dekoder opcoden.
-Standardværdier sættes øverst i processen for at undgå utilsigtede latches:
+Standardværdier sættes øverst i processen for at undgå latches:
 
 \begin{lstlisting}[style=vhdl, caption={IDC kombinatorisk process (uddrag)}, label={lst:idc-comb}]
 control_logic: process(current_state, IR, V, C, N, Z)

@@ -154,7 +154,7 @@ Sign-Extenderen benytter bit IR(8) som fortegnsbit. Denne bit kopieres til de tr
     \label{fig:SETB}
 \end{figure}
 
-Testbenchen viser, at modullet virker som forventet.
+Testbenchen viser, at modulet virker som forventet.
 
 \subsection{Zero Filler}
 \label{sec:zero-filler}
@@ -183,7 +183,7 @@ Zero-Filleren anvendes i instruktioner, hvor der indgår et lille positivt konst
 \subsubsection{Implementering}
 \label{sec:zerofiller-vhdl}
 
-Zero-Filleren er implementeret som et rent kombinatorisk modul i VHDL. Outputsignalet \texttt{ZeroFilled\_8} dannes ved at sammensætte fem konstante nuller med de tre mindst betydende bits fra inputtet \texttt{IR}. Implementeringen kræver ingen processer eller kloksignal og realiseres som en samtidig signaltilordning.
+Zero-Filleren er implementeret som et rent kombinatorisk modul i VHDL. Outputsignalet \texttt{ZeroFilled\_8} dannes ved at sammensætte fem konstante nuller med de tre mindst betydende bits fra inputtet \texttt{IR}. Implementeringen kræver ingen processer eller CLK-signal og realiseres som en samtidig signaltilordning.
 
 \subsubsection{Test}
 \label{sec:zf-test}
@@ -195,7 +195,7 @@ Zero-Filleren er implementeret som et rent kombinatorisk modul i VHDL. Outputsig
     \label{fig:ZFTB}
 \end{figure}
 
-Testbenchen viser, at modullet virker som forventet.
+Testbenchen viser, at modulet virker som forventet.
 \ifdefined\mainfile\else
 \end{document}
 \fi
