@@ -25,7 +25,7 @@
 \subsection{Design}
 \label{sec:ir-design}
 % Beskrivelse af IR logik og IL kontrolsignal
-Instruction Register, er et register som holder en 16 bit instruktion fra hukommelsen. Den styres af et load signal (IL), hvis dette signal er logisk højt læses den 16 bit instruktion ind fra hukommelsen og hvis den er logisk lav så holdes den sidst indlæste instruktion. Sandhedstabellen for den ønskede funktionalitet ses nedenfor og er taget fra opgavebeskrivelsen:
+Instruction Register, er et register som holder en 16 bit instruktion fra hukommelsen. Den styres af et load signal (IL), hvis dette signal er logisk højt læses den 16 bit instruktion ind fra hukommelsen og hvis den er logisk lav, så holdes den sidst indlæste instruktion. Sandhedstabellen for den ønskede funktionalitet ses nedenfor og er taget fra opgavebeskrivelsen:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{images/instruction-register/Instruction register sandhedstabel.png}
@@ -74,9 +74,9 @@ Disse diagrammer skal ses som et enkelt timing diagram som er delt op i 3 diagra
 
 Instruction Registeret (IR) er implementeret som et 16-bit synkront register med load-enable og reset-funktionalitet. Implementeringen er baseret på et tidligere anvendt D-flip-flop-design, som er udvidet fra ét bit til 16 bit. Dette muliggør lagring af hele instruktionen i ét samlet modul fremfor 16 separate registre.
 \\
-Det underliggende modul \texttt{flip\_flop\_16} er modelleret behavioralt ved hjælp af en clocked process. Registeret nulstilles, når reset-signalet er aktivt, hvilket sætter alle bits i IR til nul. Ved den positive flanke af kloksignalet opdateres registerets indhold med signalet \texttt{Instruction\_In}, såfremt load-signalet \texttt{IL} er høj. Hvis \texttt{IL} er lav, fastholder registeret sin nuværende værdi.
+Det underliggende modul \texttt{flip\_flop\_16} er modelleret behavioralt ved hjælp af en clocked process. Registeret nulstilles, når reset-signalet er aktivt, hvilket sætter alle bits i IR til nul. Ved den positive flanke af clk-signalet opdateres registerets indhold med signalet \texttt{Instruction\_In}, såfremt load-signalet \texttt{IL} er høj. Hvis \texttt{IL} er lav, fastholder registeret sin nuværende værdi.
 \\
-Load-signalet \texttt{IL} fungerer dermed som en clock-enable og sikrer, at instruktionen kun indlæses i overensstemmelse med sandhedstabellen vist i figur~\ref{fig:ir-truthtable}. Når \texttt{IL = 0}, vil IR forblive uændret, også selvom der forekommer en opadgående flanke på clk.
+Load-signalet \texttt{IL} fungerer dermed som et enable signal og sikrer, at instruktionen kun indlæses i overensstemmelse med sandhedstabellen vist i figur~\ref{fig:ir-truthtable}. Når \texttt{IL = 0}, vil IR forblive uændret, også selvom der forekommer en opadgående flanke på clk.
 \\
 Instruction Registeret er instansieret strukturelt i topmodulet via det generiske flip-flop-modul, hvor \texttt{Instruction\_In} tilsluttes D-inputtet, \texttt{IL} til load-signalet og outputtet \texttt{IR} leverer den lagrede instruktion til Instruction Decoder/Controller og de tilhørende hjælpeblokke som Sign-Extender og Zero-Filler.
 
@@ -115,7 +115,7 @@ Instruction Registeret er instansieret strukturelt i topmodulet via det generisk
     \label{fig:TBIR3}
 \end{figure}
 
-Vi kan se, at Testbenchene matcher timingdiagrammerne i design afsnittet og derfor kan vi konkludere, at systemet virker som det skal. 
+Vi kan se, at testbenchene matcher timingdiagrammerne i design afsnittet og derfor kan vi konkludere, at systemet virker som det skal. 
 
 \subsection{Sign Extender}
 \label{sec:sign-extender}
@@ -125,9 +125,10 @@ Vi kan se, at Testbenchene matcher timingdiagrammerne i design afsnittet og derf
 
 \subsubsection{Design}
 \label{sec:se-design}
-Sign-Extenderen er designet i overensstemmelse med projektbeskrivelsen og anvendes til at generere et 8-bit offset med bevaret fortegn. Modulet benytter bit IR(8) som fortegnsbit, som kopieres til de tre mest betydende bits i outputtet.
+Sign-Extenderen er designet i overensstemmelse med projektbeskrivelsen og anvendes til at generere et 8-bit offset med bevaret fortegn. Modulet benytter bit IR(8) som fortegnsbit, som kopieres til de tre mest betydende bits i outputtet. De resterende bits i outputtet dannes ud fra IR(7 downto 6) og IR(2 downto 0). Samlet kommer outputtet til at have følgende form:\\ 
+\[ \text{SignExtended\_8} = \,IR(8) \,IR(8) \,IR(8) \,IR(7:6) \,IR(2:0) \]
 \\
-De resterende bits i outputtet dannes ud fra IR(7 downto 6) og IR(2 downto 0). Derved opnås en korrekt to-komplements repræsentation af instruktionens offset, som kan anvendes i branch-instruktioner.
+Derved opnås en korrekt to-komplements repræsentation af instruktionens offset, som kan anvendes i branch-instruktioner.
 % Beskrivelse af sign extension logik
 
 \subsubsection{Implentering}
@@ -170,7 +171,7 @@ Outputtet får dermed formen:
 \text{ZeroFilled\_8} = 00000\,IR(2:0)
 \]
 \\
-Zero-Filleren anvendes i instruktioner, hvor der indgår et lille positivt konstantfelt, og hvor fortegnsudvidelse ikke er nødvendig.
+Zero-Filleren Giver output fra PWB-modulet i form af \textbf{Constant\_Out}
 
 \begin{figure}[H]
     \centering

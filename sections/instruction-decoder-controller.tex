@@ -62,7 +62,7 @@ IDC er implementeret som en Mealy-type finite state machine (FSM) med seks tilst
 og en to-process model:
 
 \begin{enumerate}
-    \item \textbf{State register} (sekventiel process): Opdaterer \texttt{current\_state} på stigende
+    \item \textbf{State register} (sekventiel process): Opdaterer \texttt{current\_state} på opadgående
           clockflanke. Asynkron reset til INF.
     \item \textbf{Next-state + output logik} (kombinatorisk process): Beregner \texttt{next\_state}
           og alle kontrolsignaler baseret på \texttt{current\_state}, opcode (\texttt{IR(15:9)}) og statusflag.

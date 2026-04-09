@@ -16,9 +16,9 @@ PWB er en mikroprogram-controller, som styrer hvilke mikroopeationer der skal ud
 \\ \\
 \textbf{Program Counteren (PC)} er et register, der indeholder adressen på den næste instruktion, som skal hentes fra hukommelsen. PC kan enten fastholde sin værdi, inkrementeres sekventielt, opdateres relativt ved en branch eller indlæses direkte ved et jump. Funktionen styres af et 2-bit kontrolsignal, PS, som bestemmer PC’ens opførsel i hver clockcyklus.
 \\ \\
-\textbf{Instruction registeret (IR)} holder en 16 bit instruktion under en eksekveringscyklus. den henter en instruktion ved at læse fra hukommelsen når Load (IL) er logisk høj.
+\textbf{Instruction registeret (IR)} holder en 16 bit instruktion under en eksekveringscyklus. Den henter en instruktion ved at læse fra hukommelsen når Load (IL) er logisk høj.
 \\ \\
-\textbf{Instruction decoder/controller (IDC)} består af et sekvenselt kontrol kredsløb, som forsyner et kontrolord, der bruges til mikro‑operationer, som fortolker instruktionerne fra IR. En instruktion består af 16 bit opdelt i fire felter, hvor et 7‑bit opcode angiver operationen, og de resterende felter refererer til registre, operander eller adresser i datapathen. 
+\textbf{Instruction decoder/controller (IDC)} består af et sekventielt kontrol kredsløb, som forsyner et kontrolord, der bruges til mikro‑operationer, som fortolker instruktionerne fra IR. En instruktion består af 16 bit opdelt i fire felter, hvor et 7‑bit opcode angiver operationen, og de resterende felter refererer til registre, operander eller adresser i datapathen. 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{images/design-overblik/PWBTop.png}

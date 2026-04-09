@@ -6,6 +6,18 @@
 \usepackage{amssymb}
 \usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows, calc}
+
+\tikzset{
+	->,
+	>=stealth,
+	shorten >=2pt, shorten <=2pt,
+	node distance=2.8cm,
+	every state/.style={draw=blue!55,very thick,fill=blue!20},
+	initial text=$ $,
+}
+
 \begin{document}
 \fi
 
@@ -168,6 +180,118 @@ Alle fire testgrupper blev kørt i Vivado XSim. Ingen \texttt{Error}-beskeder bl
 \label{tab:mpc-test-results}
 \end{table}
 
+\subsection{Verificering af timing Digram}
+
+\begin{tikzpicture}[
+    x=4.7cm,
+    y=0.7cm,
+    sig/.style={draw, thick},
+    bus/.style={draw, thick},
+    lbl/.style={anchor=east}
+]
+
+% --- Labels ---
+\node[lbl] at (-0.4, 0) {CLK};
+\node[lbl] at (-0.4,-1) {CS};
+\node[lbl] at (-0.4,-2) {NS};
+\node[lbl] at (-0.4,-3) {OP};
+\node[lbl] at (-0.4,-4) {RST};
+\node[lbl] at (-0.4,-5) {IL};
+\node[lbl] at (-0.4,-6) {RW};
+\node[lbl] at (-0.4,-7) {PS};
+\node[lbl] at (-0.4,-8) {FS};
+
+% --- CLK (rising edges at x = 1,2,3) ---
+\draw[sig]
+(0,0) -- (0.5,0) -- (0.5,0.5) -- (1,0.5) -- (1,0)
+-- (1.5,0) -- (1.5,0.5) -- (2,0.5) -- (2,0)
+-- (2.5,0) -- (2.5,0.5);
+
+% CS: INF -> EX0 -> INF
+\draw[bus] (0,-1) -- (0.5,-1) node[midway,above] {INF};
+
+\draw[bus] (0.5,-1) -- (1.1,-1) node[midway,above] {EX0};
+
+\draw[bus] (1.1,-1) -- (1.5,-1) node[midway,above] {INF};
+
+\draw[bus] (1.5,-1) -- (2.5,-1) node[midway,above] {EX0};
+
+% --- NS (next_state) ---
+\draw[bus] (0,-2) -- (0.5,-2) node[midway,above] {EX0};
+
+\draw[bus] (0.5,-2) -- (1.1,-2) node[midway,above] at (0.8,-2) {INF};
+
+\draw[bus] (1.1,-2) -- (1.5,-2) node[midway,above] {EX0};
+
+\draw[bus] (1.5,-2) -- (2.5,-2) node[midway,above] {INF};
+
+
+% --- OP (konstant) ---
+\draw[bus] (0,-3) -- (1.1,-3) node[midway,above] {SUB};
+
+\draw[bus] (1.1,-3) -- (2.5,-3) node[midway,above] {ADD};
+
+% --- RST (kort puls før start) ---
+\draw[sig]
+(0,-4) -- (1.1,-4) -- (1.1,-3.5) -- (1.2,-3.5) -- (1.2,-4) -- (2.5,-4);
+
+% --- IL (høj i INF) ---
+\draw[sig]
+(0,-4.5) -- (0.5,-4.5) -- (0.5,-5) -- (1.1,-5) -- (1.1,-4.5) -- (1.5,-4.5) -- (1.5,-5) -- (2.5,-5);
+
+% --- RW (høj i EX0) ---
+\draw[sig]
+(0,-6) -- (0.5,-6) -- (0.5,-5.5) -- (1.1,-5.5) -- (1.1,-6) -- (1.5,-6) -- (1.5,-5.5) -- (2.5,-5.5);
+
+% --- PS ---
+\draw[bus] (0,-7) -- (0.5,-7) node[midway,above] {00};
+
+\draw[bus] (0.5,-7) -- (1.1,-7) node[midway,above] at (0.8,-7) {01};
+
+\draw[bus] (1.1,-7) -- (1.5,-7) node[midway,above] {00};
+
+\draw[bus] (1.5,-7) -- (2.5,-7) node[midway,above] {01};
+
+% --- FS ---
+\draw[bus] (0,-8) -- (0.5,-8) node[midway,above] {0X0};
+
+\draw[bus] (0.5,-8) -- (1.1,-8) node[midway,above] at (0.8,-8) {0X5};
+
+\draw[bus] (1.1,-8) -- (1.5,-8) node[midway,above] {0Xx};
+
+\draw[bus] (1.5,-8) -- (2.5,-8) node[midway,above] {0X2};
+
+% --- Rising edge marker ---
+\draw[dashed, red] (1.1,-8.5) -- (1.1,0.8);
+
+% --- clk edge marker ---
+\draw[dashed, blue] (0.5,-8.5) -- (0.5,0.8);
+\draw[dashed, blue] (1.5,-8.5) -- (1.5,0.8);
+\draw[dashed, blue] (2.5,-8.5) -- (2.5,0.8);
+\end{tikzpicture}
+\\
+\noindent
+For at verificere det viste timingdiagram for IDC'en
+er der udarbejdet en dedikeret VHDL testbench, som tester
+\texttt{SUB}, \texttt{reset} og \texttt{ADD}.
+\\
+\\
+\noindent
+Simuleringen bekræfter, at reset korrekt tvinger FSM’en tilbage
+i INF-tilstanden (kan ses på \texttt{IL}),
+og at efterfølgende instruktioner udføres med korrekt timing for
+IL, RW, PS og FS i overensstemmelse med timingdiagrammet.
+Simuleringen kan ikke direkte følge \texttt{current\_state} og
+\texttt{next\_state}, da disse er enum-variabler.
+Tilstandene kan derfor ikke verificeres direkte, men de observerede
+kontrolsignaler understøtter, at IDC’en befinder sig i den forventede tilstand.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images//syntese/TB_af_timingdiagram.png}
+    \caption{Billedet viser simulerings resultaterne af Timingdigram\_TB}
+    \label{fig:TB_testdiagram}
+\end{figure}
 \ifdefined\mainfile\else
 \end{document}
 \fi

@@ -24,7 +24,7 @@
 \subsection{Design}
 \label{sec:pc-design}
 Program Counteren (PC) er designet med udgangspunkt i figur 6-14 fra \textit{Logic and Computer Design Fundamentals} af M. Morris Mano og Charles R. Kime. Designet opfylder desuden funktionskravene specificeret i projektbeskrivelsen for Project Work B, herunder de fire operationstilstande styret af Program Select-signalet (PS).\\
-PC-modulet består af et 8-bit register, en adder samt en multiplexer, som tilsammen muliggør hold, inkrementering, branch og  jump. Valget af næste PC-værdi foretages af multiplexeren baseret på PS-signalet, hvorefter værdien indlæses i PC-registeret på en rising edge af kloksignalet (CLK).\\
+PC-modulet består af et 8-bit register, en adder samt en multiplexer, som tilsammen muliggør hold, inkrementering, branch og  jump. Valget af næste PC-værdi foretages af multiplexeren baseret på PS-signalet, hvorefter værdien indlæses i PC-registeret på en rising edge af CLK-signalet.\\
 Figur~\ref{fig:4bitCounter} viser det overordnede blokdiagram for Program Counteren, dog er implementeringen udviddet til 8 bit, fremfor de 4 bit der ses på figuren.
 Figur~\ref{fig:PCSandhedstabel} viser den tilhørende sandhedstabel.\\
 Når PS = 00, holdes PC-registerets nuværende værdi.  
@@ -35,8 +35,8 @@ PC-modulet er desuden forsynet med et RESET-signal, som ved aktivering nulstille
 Samlet set følger Program Counterens funktionalitet direkte sandhedstabellen vist i figur~\ref{fig:PCSandhedstabel} og opfylder kravene til styring af instruktionssekvensen.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{images/program-counter/Skærmbillede 2026-03-27 100937.png}
-    \caption{Program Counter funktionsdiagram}
+    \includegraphics[width=0.8\linewidth]{images/program-counter/Skærmbillede 2026-03-27 100937.png}
+    \caption{Program Counter funktionsdiagram, Figure 6-14, Logic and Computer Design Fundamentals Fifth Edition, M. Morris Mano, Charles R. Kime, Tom Martin}
     \label{fig:4bitCounter}
 \end{figure}
  
@@ -44,11 +44,11 @@ Samlet set følger Program Counterens funktionalitet direkte sandhedstabellen vi
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{images/program-counter/PCSandhedstabel.png}
-    \caption{Sandhedstabel for PC}
+    \caption{Sandhedstabel for PC, tabellen er opgivet i opgavebeskrivelsen}
     \label{fig:PCSandhedstabel}
 \end{figure}
-
-Der er lavet et timing diagram for PC (figur ~\ref{fig:PCTiming}), som viser hvordan PC forventes at opfører sig.
+\newpage
+\noindent nedenfor ses et timing diagram for PC (figur ~\ref{fig:PCTiming}), som viser hvordan PC forventes at opfører sig.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{Timing PC.png}
@@ -63,7 +63,7 @@ Der er lavet et timing diagram for PC (figur ~\ref{fig:PCTiming}), som viser hvo
 
 Program Counteren er implementeret strukturelt i VHDL og består af otte identiske 1-bit CounterLogic-moduler, som tilsammen danner et 8-bit register med tælle- og load-funktionalitet. Denne opbygning følger funktionsdiagrammet for et synkront binært tælleregister, vist i figur~\ref{fig:4bitCounter}.
 \\
-Hvert CounterLogic-modul indeholder et D-flipflop samt kombinatorisk logik, der muliggør tre operationer: hold, inkrementering og parallel load. Modulerne er koblet i en ripple-carry struktur, hvor carry-out-signalet (CO) fra hvert bit føres videre til carry-in (Cin) på det næste bit. Dette gør det muligt at inkrementere PC-værdien med 1 ved brug af carry-kæden.
+Hvert CounterLogic-modul indeholder en D-flipflop samt kombinatorisk logik, der muliggør tre operationer: hold, inkrementering og parallel load. Modulerne er koblet i en ripple-carry struktur, hvor carry-out-signalet (CO) fra hvert bit føres videre til carry-in (Cin) på det næste bit. Dette gør det muligt at inkrementere PC-værdien med 1 ved brug af carry-kæden.
 \\
 PC-registerets aktuelle værdi gemmes i signalet \texttt{PCsig}, som samtidigt anvendes som operanden i en ekstern 8-bit fulladder. Fulladderen bruges udelukkende til branch-operationen, hvor offsetværdien lægges til den nuværende PC-værdi (PC $\leftarrow$ PC + Offset).
 \\
