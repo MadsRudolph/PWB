@@ -150,25 +150,22 @@
 \newpage
 \subsection*{Modulansvar}
 
-\begin{table}[H] % RET TIL, MODULER PASSER IKKE
+\begin{table}[H]
     \centering
     \begin{tabular}{l|l|l}
         \textbf{Modul (VHDL + TB)} & \textbf{Ansvarlig} & \textbf{Subgruppe} \\
         \hline
-        D-Flip-Flop, MUX2x1          & Sigurd  & 1 \\
-        Register8bit, RegisterR16     & Sigurd  & 1 \\
-        Destination Decoder           & Sigurd  & 1 \\
-        MUX16x1x8, RegisterFile       & Sigurd \& Mads & 1 \\
-        RegisterFile TB               & Mads    & 1 \\
-        ALU (logik + aritmetik)       & Andreas & 2 \\
-        Full Adder (1-bit + 8-bit)    & Andreas & 2 \\
-        Shifter                       & Jonas   & 2 \\
-        Function Select, NegZero      & Jonas   & 2 \\
-        MUX2x1x8 (MUXF)              & Jonas   & 2 \\
-        FunctionUnit                  & Andreas \& Jonas & 2 \\
-        Datapath (top-level wiring)   & Mads    & Fælles \\
-        Datapath TB                   & Mads    & Fælles \\
-        Rapport                       & Alle    & Fælles \\
+        ProgramCounter (udkast)                & Andreas            & 1 \\
+        ProgramCounter (structural), PC TB     & Jonas              & 1 \\
+        CounterLogic, flip\_flop, full\_adder  & Andreas \& Jonas   & 1 \\
+        InstructionRegister, IR TB             & Jonas              & 2 \\
+        flip\_flop\_16                         & Jonas              & 2 \\
+        SignExtender, ZeroFiller               & Mads \& Jonas      & 2 \\
+        InstructionDecoderController           & Mads               & 2 \\
+        IDC TB                                 & Mads               & 2 \\
+        MicroprogramController (top-level)     & Mads               & Fælles \\
+        MicroprogramController TB              & Mads               & Fælles \\
+        Rapport                                & Alle               & Fælles \\
     \end{tabular}
     \caption{Fordeling af modulansvar}
     \label{tab:modulansvar}
