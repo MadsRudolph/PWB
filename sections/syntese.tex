@@ -18,16 +18,16 @@
 IDC testbenchen er opdelt i fire grupper (se testmetode i sektion~\ref{sec:idc-test}).
 Nedenfor vises bølgeformerne fra Vivado XSim for hver gruppe.
 
-\subsubsection{Gruppe 1: ALU Register-Register}
+\subsubsection{Gruppe 1: Register-Register Instruktioner}
 
-Tester alle ti ALU-operationer (MOVA, INC, ADD, SUB, DEC, OR, AND, XOR, NOT, MOVB).
+Tester alle ti register-register operationer (MOVA, INC, ADD, SUB, DEC, OR, AND, XOR, NOT, MOVB).
 For hver instruktion verificeres at FS matcher den forventede funktionskode,
 at RW=1 (register write), og at PS=01 (PC increment).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{images/syntese/idc_tb_group1.png}
-    \caption{Simulering af Gruppe 1: ALU register-register operationer.
+    \caption{Simulering af Gruppe 1: Register-register operationer.
              IR skifter opcode for hver instruktion, og FS følger med den korrekte funktionskode.}
     \label{fig:idc-tb-g1}
 \end{figure}
@@ -84,7 +84,7 @@ blev rapporteret, hvilket bekræfter at samtlige 24 assert-statements bestod.
 \hline
 \textbf{Gruppe} & \textbf{Beskrivelse} & \textbf{Antal tests} & \textbf{Resultat} \\
 \hline
-1 & ALU register-register  & 10 & PASSED \\
+1 & Register-register  & 10 & PASSED \\
 2 & Memory \& Immediate    & 4  & PASSED \\
 3 & Branch \& Jump         & 5  & PASSED \\
 4 & Multi-cycle (LRI, SRM, SLM) & 5 & PASSED \\
@@ -102,14 +102,14 @@ blev rapporteret, hvilket bekræfter at samtlige 24 assert-statements bestod.
 MPC topmodulets testbench verificerer det samlede samspil mellem alle submoduler.
 Testbenchen er opdelt i fire grupper (se testmetode i sektion~\ref{sec:mpc-test}).
 
-\subsubsection{Gruppe 1: ALU Register-Register}
+\subsubsection{Gruppe 1: Register-Register Instruktioner}
 
-Tester alle ti ALU-operationer gennem hele signalkæden: \texttt{Instruction\_In} $\rightarrow$ IR $\rightarrow$ IDC $\rightarrow$ kontrolsignaler. For hver instruktion verificeres at FS, RW, DX og AX er korrekte, at \texttt{Constant\_Out} matcher Zero Fillerens output, og at \texttt{Address\_Out} (PC) inkrementeres efter hver instruktion.
+Tester alle ti register-register operationer gennem hele signalkæden: \texttt{Instruction\_In} $\rightarrow$ IR $\rightarrow$ IDC $\rightarrow$ kontrolsignaler. For hver instruktion verificeres at FS, RW, DX og AX er korrekte, at \texttt{Constant\_Out} matcher Zero Fillerens output, og at \texttt{Address\_Out} (PC) inkrementeres efter hver instruktion.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{images/syntese/mpc_tb_group1.png}
-    \caption{Simulering af MPC Gruppe 1: ALU register-register. Address\_Out inkrementeres fra 00 til 0A gennem ti instruktioner.}
+    \caption{Simulering af MPC Gruppe 1: Register-register instruktioner. Address\_Out inkrementeres fra 00 til 0A gennem ti instruktioner.}
     \label{fig:mpc-tb-g1}
 \end{figure}
 
@@ -156,7 +156,7 @@ Alle fire testgrupper blev kørt i Vivado XSim. Ingen \texttt{Error}-beskeder bl
 \hline
 \textbf{Gruppe} & \textbf{Beskrivelse} & \textbf{Antal tests} & \textbf{Resultat} \\
 \hline
-1 & ALU register-register  & 10 & PASSED \\
+1 & Register-register  & 10 & PASSED \\
 2 & Memory \& Immediate    & 4  & PASSED \\
 3 & Branch \& Jump         & 5  & PASSED \\
 4 & Multi-cycle (LRI, SRM, SLM) & 5 & PASSED \\

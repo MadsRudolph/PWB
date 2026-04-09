@@ -144,7 +144,7 @@ Testbenchen følger samme gruppebaserede tilgang som IDC-testbenchen med en \tex
 \subsubsection{Testgrupper}
 
 \begin{itemize}
-    \item \textbf{Gruppe 1 -- ALU register-register:} Alle ti ALU-operationer (MOVA, INC, ADD, SUB, DEC, OR, AND, XOR, NOT, MOVB). For hver instruktion verificeres FS, RW, DX, AX, MB samt at PC inkrementeres korrekt. Desuden verificeres \texttt{Constant\_Out} fra Zero Filleren.
+    \item \textbf{Gruppe 1 -- Register-register:} Alle ti register-register operationer (MOVA, INC, ADD, SUB, DEC, OR, AND, XOR, NOT, MOVB). For hver instruktion verificeres FS, RW, DX, AX, MB samt at PC inkrementeres korrekt. Desuden verificeres \texttt{Constant\_Out} fra Zero Filleren.
 
     \item \textbf{Gruppe 2 -- Memory \& Immediate:} LD, ST, ADI og LDI. Verificerer MD, MW, MM, MB og FS. For ADI og LDI kontrolleres at \texttt{Constant\_Out} matcher det forventede zero-filled konstantfelt.
 
