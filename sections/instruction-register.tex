@@ -28,7 +28,7 @@
 Instruction Register, er et register som holder en 16 bit instruktion fra hukommelsen. Den styres af et load signal (IL), hvis dette signal er logisk højt læses den 16 bit instruktion ind fra hukommelsen og hvis den er logisk lav så holdes den sidst indlæste instruktion. Sandhedstabellen for den ønskede funktionalitet ses nedenfor og er taget fra opgavebeskrivelsen:
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{Instruction register sandhedstabel.png}
+    \includegraphics[width=0.5\linewidth]{images/instruction-register/Instruction register sandhedstabel.png}
     \caption{Sandhedstabel, Instruction Register}
     \label{fig:ir-truthtable}
 \end{figure}
@@ -37,7 +37,7 @@ Instruction Register, er et register som holder en 16 bit instruktion fra hukomm
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.4\linewidth]{IRModul.png}
+    \includegraphics[width=0.4\linewidth]{images/instruction-register/IRModul.png}
     \caption{Instruction register moduldiagram}
     \label{fig:IRModul}
 \end{figure}
@@ -49,7 +49,7 @@ Disse diagrammer skal ses som et enkelt timing diagram som er delt op i 3 diagra
 \noindent I denne del som man kan se på Timing diagrammet skal vi kunne sikre at systemet ikke loader instruction register (IR) med Instruction\_in når Load (IL) er logisk lav.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{IR1.2.png}
+    \includegraphics[width=1\linewidth]{images/instruction-register/IR1.2.png}
     \caption{Timing IR del 1}
     \label{fig:placeholder}
 \end{figure}
@@ -57,14 +57,14 @@ Disse diagrammer skal ses som et enkelt timing diagram som er delt op i 3 diagra
 \noindent I denne del af timing diagrammet skal vi kunne sikre at systemet kun loader instruction register (IR) når IL er logisk høj og at det kun sker på en opadgående CLK-flanke, samt at det asynkrone RESET kan nulstille registeret lige så snart RESET signalet går højt uagtet om der er en opadgående  CLK-flanke. 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{IR2.2.png}
+    \includegraphics[width=1\linewidth]{images/instruction-register/IR2.2.png}
     \caption{Timing IR del 2}
     \label{fig:placeholder}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{IR3.png}
+    \includegraphics[width=1\linewidth]{images/instruction-register/IR3.png}
     \caption{Timing IR del 3}
     \label{fig:placeholder}
 \end{figure}
@@ -86,7 +86,7 @@ Instruction Registeret er instansieret strukturelt i topmodulet via det generisk
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{Instruction register.png}
+    \includegraphics[width=0.7\linewidth]{images/instruction-register/Instruction register.png}
     \caption{Instruction register VHDL-implementering}
     \label{fig:placeholder}
 \end{figure}
@@ -96,21 +96,21 @@ Instruction Registeret er instansieret strukturelt i topmodulet via det generisk
 % Testbench og verifikation
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{Testbench IR 1.png}
+    \includegraphics[width=1\linewidth]{images/instruction-register/Testbench IR 1.png}
     \caption{Testbench for IR 1}
     \label{fig:TBIR1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{TBIR2.png}
+    \includegraphics[width=1\linewidth]{images/instruction-register/TBIR2.png}
     \caption{Testbench for IR 2}
     \label{fig:TBIR2}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{TBIR3.png}
+    \includegraphics[width=1\linewidth]{images/instruction-register/TBIR3.png}
     \caption{Testbench for IR 3}
     \label{fig:TBIR3}
 \end{figure}
@@ -138,7 +138,7 @@ Sign-Extenderen benytter bit IR(8) som fortegnsbit. Denne bit kopieres til de tr
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{SignExtender.png}
+    \includegraphics[width=0.5\linewidth]{images/instruction-register/SignExtender.png}
     \caption{SignExtender funktionsdiagram}
     \label{fig:placeholder}
 \end{figure}
@@ -149,7 +149,7 @@ Sign-Extenderen benytter bit IR(8) som fortegnsbit. Denne bit kopieres til de tr
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{SETB.png}
+    \includegraphics[width=1\linewidth]{images/instruction-register/SETB.png}
     \caption{Testbench for SignExtender}
     \label{fig:SETB}
 \end{figure}
@@ -174,7 +174,7 @@ Zero-Filleren anvendes i instruktioner, hvor der indgår et lille positivt konst
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{ZeroFiller.png}
+    \includegraphics[width=0.5\linewidth]{images/instruction-register/ZeroFiller.png}
     \caption{Zero Filler funktionsdiagram}
     \label{fig:ZeroFiller}
 \end{figure}
@@ -190,7 +190,7 @@ Zero-Filleren er implementeret som et rent kombinatorisk modul i VHDL. Outputsig
 % Testbench og verifikation
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{ZFTB.png}
+    \includegraphics[width=1\linewidth]{images/instruction-register/ZFTB.png}
     \caption{Testbench for ZeroFiller}
     \label{fig:ZFTB}
 \end{figure}
